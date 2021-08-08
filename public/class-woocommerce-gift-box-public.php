@@ -99,5 +99,38 @@ class Woocommerce_Gift_Box_Public {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/woocommerce-gift-box-public.js', array( 'jquery' ), $this->version, false );
 
 	}
+	public function wcgb_create_shortcode(){
+		add_shortcode( 'gift_box_products', array($this, 'gift_box_short_code_callback') );
+	}
+
+	 function gift_box_short_code_callback(){ 
+		ob_start();
+		?>
+		<div class="product-listing woocommerce clearfix columns-4">
+			<?php
+			echo get_theme_mod('woocommerce_catalog_columns');
+			
+				$args = array(
+					'post_type' => 'product',
+					'posts_per_page' => 8
+					);
+				$loop = new WP_Query( $args );
+				if ( $loop->have_posts() ) {
+					while ( $loop->have_posts() ) : $loop->the_post();
+						
+							wc_get_template_part( 'content', 'product' );
+						
+					endwhile;
+				} else {
+					echo __( 'No products found' );
+				}
+				wp_reset_postdata();
+			?>
+		</div>
+		<?php
+		$output_string = ob_get_contents();
+		ob_end_clean();
+		return $output_string;
+	}
 
 }

@@ -150,12 +150,13 @@ class Woocommerce_Gift_Box_Public {
 	}
 
 
-	// function csp_locate_template( $template, $template_name, $template_path ) {
-	// 	$basename = basename( $template );
-	// 	if( $basename == 'cart.php' ) {
-	// 	$template = trailingslashit( plugin_dir_path( __FILE__ ) ) . 'templates/cart.php';
-	// 	}
-	// 	return $template;
-	//    }
-	// add_filter( 'woocommerce_locate_template', 'csp_locate_template', 10, 3 );
+	function wcgb_locate_template( $template, $template_name, $template_path ) {
+		$basename = basename( $template );
+
+		if( $basename == 'cart.php' ) {
+			$template =  WOOCOMMERCE_GIFT_BOX_PATH . 'templates/cart.php';
+		}
+		return $template;
+	   }
+	
 }

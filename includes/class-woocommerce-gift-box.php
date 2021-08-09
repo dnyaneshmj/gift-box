@@ -175,8 +175,7 @@ class Woocommerce_Gift_Box {
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
 		$this->loader->add_action( 'init', $plugin_public, 'wcgb_create_shortcode' );
 		$this->loader->add_action( 'woocommerce_product_query', $plugin_public, 'wcgb_hide_box_and_wrap' );
-		
-
+		$this->loader->add_filter( 'woocommerce_locate_template', $plugin_public, 'wcgb_locate_template', 10, 3 );
 	}
 
 	/**

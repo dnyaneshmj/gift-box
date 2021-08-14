@@ -108,11 +108,11 @@ class Woocommerce_Gift_Box_Public {
 		?>
 		<div class="product-listing woocommerce clearfix columns-4">
 			<?php
-			echo get_theme_mod('woocommerce_catalog_columns');
+			//echo get_theme_mod('woocommerce_catalog_columns');
 			
 				$args = array(
 					'post_type' => 'product',
-					'posts_per_page' => 8,
+					'posts_per_page' => -1,
 					'meta_key' => 'is_gift_box',
 					'meta_value' => 'true'
 					);
@@ -156,6 +156,9 @@ class Woocommerce_Gift_Box_Public {
 		if( $basename == 'cart.php' ) {
 			$template =  WOOCOMMERCE_GIFT_BOX_PATH . 'templates/cart.php';
 		}
+		if( $basename == 'mini-cart.php' ) {
+			$template =  WOOCOMMERCE_GIFT_BOX_PATH . 'templates/mini-cart.php';
+		}
 		return $template;
 	
 	}
@@ -176,11 +179,23 @@ class Woocommerce_Gift_Box_Public {
 		$is_gift_box = get_post_meta( $product_id, 'is_gift_box', true );
 			
 		if($is_gift_box == true){
-			$gift_box[] = $product_id;
+			$gift_box[] = $product_id;           
+			
+			$wcgb_packages = WC()->session->get('wcgb_packages');
+			$current_package = WC()->session->get('wcgb_current_package');
+			
+			if( $wcgb_packages && empty($wcgb_packages) && $current_package && $current_package == ''){
+				WC()->session->set('wcgb_packages', [ 'package1' => $product_id] );
+				WC()->session->set('wcgb_current_package', 'package1' );
+			}else{
 
-			WC()->session->set('wcgb_packages', [ 'package1' => $product_id] );
-			WC()->session->set('wcgb_current_package', 'package1' );
-
+				$currentPackageCount = count($wcgb_packages ) + 1;
+                $current_package = 'package'.$currentPackageCount;
+                $wcgb_packages = array_merge($wcgb_packages, [  $current_package => $product_id ]);
+				WC()->session->set('wcgb_packages', $wcgb_packages );
+				WC()->session->set('wcgb_current_package', $current_package );
+				
+			}
 
 			$url = wc_get_page_permalink( 'shop' );
 		}
@@ -196,7 +211,7 @@ class Woocommerce_Gift_Box_Public {
 		$current_package = WC()->session->get('wcgb_current_package');
 		$packages = WC()->session->get('wcgb_packages' );
 		//var_dump($cart_item_data);die;
-		if(isset($current_package) && isset($packages) ){
+		if(isset($current_package) && isset($packages) && ! isset($cart_item_data['item_package']) ){
 			
 			$cart_item_data['item_package'] = $current_package;
 			$cart_item_data['package_product'] = $packages[$current_package];
@@ -222,4 +237,28 @@ class Woocommerce_Gift_Box_Public {
 		}
 	}
 	
+	public function wcgb_get_gift_box_options(){
+		
+		$options = [];
+		$args = array(
+			'post_type' => 'product',
+			'posts_per_page' => -1,
+			'meta_key' => 'is_gift_box',
+			'meta_value' => 'true'
+			);
+		$loop = new WP_Query( $args );
+		if ( $loop->have_posts() ) {
+			while ( $loop->have_posts() ) : $loop->the_post();
+				
+			$options[] = get_the_ID();
+				
+			endwhile;
+		} else {
+			$options = [];
+		}
+		wp_reset_postdata();
+
+		return $options;
+			
+	}
 }

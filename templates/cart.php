@@ -22,6 +22,9 @@ do_action( 'woocommerce_before_cart' ); ?>
 <form class="woocommerce-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
 	<?php do_action( 'woocommerce_before_cart_table' ); ?>
     <?php   
+            // WC()->cart->empty_cart();
+            // WC()->session->set('wcgb_packages', [] );
+            // WC()->session->set('wcgb_current_package',  '' );
            $wcgb_packages = WC()->session->get('wcgb_packages');
            $current_package = WC()->session->get('wcgb_current_package');
            $showButtons = false;
@@ -30,16 +33,17 @@ do_action( 'woocommerce_before_cart' ); ?>
                 
 
                 $currentPackageCount = count($wcgb_packages ) + 1;
-                $name = 'package'.$currentPackageCount;
-                $wcgb_packages = array_merge($wcgb_packages, [  $name => '' ]);
+                $current_package = 'package'.$currentPackageCount;
+                $wcgb_packages = array_merge($wcgb_packages, [  $current_package => 'new' ]);
 
                 WC()->session->set('wcgb_packages', $wcgb_packages );
-			    WC()->session->set('wcgb_current_package',  $name );
+			    WC()->session->set('wcgb_current_package',  $current_package );
+                WC()->session->set('wcgb_new_package', 'true' );
             }
-             $wcgb_packages = WC()->session->get('wcgb_packages');
-             $current_package = WC()->session->get('wcgb_current_package');
-            
-
+            //var_dump($wcgb_packages); 
+            //var_dump($current_package); 
+            //die;
+        
              $cart_packages = [];
 
              foreach($wcgb_packages as $package => $package_product){
@@ -54,8 +58,12 @@ do_action( 'woocommerce_before_cart' ); ?>
                     $is_gift_box = get_post_meta( $product_id, 'is_gift_box', true );
 
                     if( $package == $item_package && $package_product != $product_id && $is_gift_box != 'true' ){
-                        $showButtons = true;
+                        
+                        if($current_package == $package && $package_product != 'new' )
+                                $showButtons = true;
+                        
                        $packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product,  'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
+                       //$packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product, 'item_package' => $item_package ];
                     }
                 }
                 $cart_packages = array_merge($cart_packages, $packages_product);
@@ -73,14 +81,31 @@ do_action( 'woocommerce_before_cart' ); ?>
             //             $gift_box[] = $product_id;
             //         }
             // }
+            $gift_box_public = new Woocommerce_Gift_Box_Public();
             
+            $giftBoxes = $gift_box_public->wcgb_get_gift_box_options();
+
+
             foreach($wcgb_packages as $package => $package_product){ 
                 echo $package;
+                echo get_the_title( $package_product );
                 ?>
 
                 <table class="shop_table shop_table_responsive cart woocommerce-cart-form__contents"> 
                     <tr>
-                        <h3> Gift Box : <?php echo get_the_title( $package_product ) ?></h3>
+                        <h3> Gift Box :
+                            <select>
+                                <option value="">Select Gift Box</option>;
+                                <?php 
+                                    foreach ($giftBoxes as $box ) {
+                                        
+                                        echo '<option value="'.$box.'" '.selected( $package_product, $box, false).'>'.get_the_title( $box ).'</option>';
+                                    }
+
+                                ?>
+                            </select>    
+                        </h3>
+
                         <a href='#'>Delete Package</a>
                     </tr>
                     <?php 

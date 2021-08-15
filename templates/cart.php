@@ -18,331 +18,647 @@
 defined( 'ABSPATH' ) || exit;
 
 do_action( 'woocommerce_before_cart' ); ?>
-
-<form class="woocommerce-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
-	<?php do_action( 'woocommerce_before_cart_table' ); ?>
-    <?php   
-            // WC()->cart->empty_cart();
-            // WC()->session->set('wcgb_packages', [] );
-            // WC()->session->set('wcgb_current_package',  '' );
-           $wcgb_packages = WC()->session->get('wcgb_packages');
-           $current_package = WC()->session->get('wcgb_current_package');
-           $showButtons = false;
-
-            if( isset($_POST['new_box']) ){
-                
-
-                $currentPackageCount = count($wcgb_packages ) + 1;
-                $current_package = 'package'.$currentPackageCount;
-                $wcgb_packages = array_merge($wcgb_packages, [  $current_package => 'new' ]);
-
-                WC()->session->set('wcgb_packages', $wcgb_packages );
-			    WC()->session->set('wcgb_current_package',  $current_package );
-                WC()->session->set('wcgb_new_package', 'true' );
+          
+    <style>
+        .pack-n {
+            font-size: 15px;
+            color: #555;
+        }
+        .cb-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 15px 15px;
+            background-color:#fbfbfb;
             }
-            //var_dump($wcgb_packages); 
-            //var_dump($current_package); 
-            //die;
-        
-             $cart_packages = [];
+        .cb-thumb {
+            margin-right: 2%;
+            display: flex;
+        flex-direction: row;
+        }
+        .dd-select{background-color:transparent !important;}
+        .dd-selected {padding: 4px 7px !important;}
+        .dd-selected-text{margin-bottom:0px;line-height: 33px !important;}
+        .dd-option{padding: 4px 7px !important;}
+        .dd-option-text{margin-bottom:0px;line-height: 33px !important;}
+        .cb-item-detail {
+            margin-right: 16%;
+            max-width:30%;
+            width: 30%;
+            display: flex;
+        flex-direction: column;
+        justify-content: normal;
+        align-content: flex-start;
+        }
+        .item-cb-free {
+            font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        }
+        .item-cb {
+            font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        }
+        .cb-item-price {
+            margin-left: 49%;
+        }
 
-             foreach($wcgb_packages as $package => $package_product){
+        .pdthumb {width:100px;}
+        .gf-row {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 15px 15px;
+            }
+        .gf-row:nth-child(2n) {background-color: #fff;}
+        .gf-row:nth-child(2n+1) {background-color: #f0f8ff;}
 
-                //var_dump($package);
-                $packages_product = [];
-                foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+        .gf-thumb {
+            margin-right: 2%;
+        }
+        .gf-item-detail {
+            margin-right: 16%;
+            max-width:30%;
+            width: 30%;
+            display: flex;
+        flex-direction: column;
+        justify-content: normal;
+        align-content: flex-start;
+        }
+        .gf-item-count {
+            margin-right: 10%;
+        }
+        .gf-item-price {
+            margin-right: 10%;
+        }
+
+        .quantity-minus, .quantity-plus {font-size: 32px;
+        line-height: 25px;
+        display: inline-block;
+        width: 32px;
+        height: 32px;
+        background: #f1eeeb;
+        text-align: center;vertical-align: middle;}
+
+        .item-title {
+            font-size: 18px;
+            color: #333;
+        }
+        .item-sku {
+            font-size: 13px;
+            color: #333; margin-bottom: 0;
+        }
+        .gf-row-delete .fa-trash{padding: 5px 0;
+        font-size: 16px;
+        color: red;}
+        .package-gb-cont{width: 85%;margin: 0 auto; border: 1px dashed #ddd; padding: 10px 10px;}
+        .item-price {
+            font-size: 20px;
+        font-weight: 600;
+        color: #333;
+        }
+        .cb-pack-con {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .cb-pack-rec {
+            margin-left: 10%; cursor: pointer;
+        }
+        #btnOpenForm {
+            font-size: 15px;
+            padding: 3px 3px;
+            border: 1px dashed #bbb;
+            width: max-content;
+        }
+        .ar-button {
+            background-color: #000;
+            border: none;
+            padding: 9px 25px;
+            border-radius: 2px;
+            font-size: 13px;
+            color: #fff;
+            text-transform: uppercase;
+            margin-top: 30px;
+        }
+        .anr-button {
+            background-color: #000;
+            border: none;
+            padding: 9px 25px;
+            border-radius: 2px;
+            font-size: 13px;
+            color: #fff;
+            text-transform: uppercase;
+            margin-top: 30px;
+            float: right;
+            margin-right: 8%;
+        }
+        .pd-button {
+            background-color: #000;
+            border: none;
+            padding: 9px 25px;
+            border-radius: 2px;
+            font-size: 13px;
+            color: #fff;
+            text-transform: uppercase;
+            margin-top: 30px;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+            width: 48%;
+            float: left;
+            margin: 0 12px 0 0px;
+        }
+        .form-popup-bg {
+        position:absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        flex-direction: column;
+        align-content: center;
+        justify-content: center;
+        }
+        .form-popup-bg {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 100%;
+        background-color: rgba(94, 110, 141, 0.9);
+        opacity: 0;
+        visibility: hidden;
+        -webkit-transition: opacity 0.3s 0s, visibility 0s 0.3s;
+        -moz-transition: opacity 0.3s 0s, visibility 0s 0.3s;
+        transition: opacity 0.3s 0s, visibility 0s 0.3s;
+        overflow-y: auto;
+        z-index: 10000;
+        }
+        .form-popup-bg.is-visible {
+        opacity: 1;
+        visibility: visible;
+        -webkit-transition: opacity 0.3s 0s, visibility 0s 0s;
+        -moz-transition: opacity 0.3s 0s, visibility 0s 0s;
+        transition: opacity 0.3s 0s, visibility 0s 0s;
+        }
+        .form-container {
+            background-color:#bfbfbf;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            position:relative;
+        padding: 40px;
+        color: #fff;
+        }
+        .close-button {
+        background:none;
+        color: #fff;
+        width: 40px;
+        height: 40px;
+        position: absolute;
+        top: 0;
+        right: 0;
+        border: solid 1px #fff;
+        }
+
+        .form-popup-bg:before{
+            content:'';
+            background-color: #fff;
+            opacity: .25;
+            position:absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>     
+    
+    <script>
+           function changeGiftBox( package, new_gb_id, old_gb_id,old_gb_ckey ) {
+                var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
                     
-                    $product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
+                var formData = {
+                    package: package,
+                    new_gb_id: new_gb_id,
+                    old_gb_id: old_gb_id,
+                    old_gb_ckey: old_gb_ckey
+                };
 
-                    $item_package = $cart_item['item_package'];
-                    $is_gift_box = get_post_meta( $product_id, 'is_gift_box', true );
+                jQuery.ajax({
+                    url: ajaxurl,
+                    type: 'post',
+                    data: {
+                        formData: formData,
+                        // security: check_ref,
+                        dataType: "json",
+                        encode: true,
+                        action: 'wcgb_change_gb_in_cart'
+                    },
+                    error: function(response) {
+                        console.log(response);
+                    },
+                    success: function(response) {
+                        
+                        if (response.success) {
+                            window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
 
-                    if( $package == $item_package && $package_product != $product_id && $is_gift_box != 'true' ){
-                        
-                        if($current_package == $package && $package_product != 'new' )
-                                $showButtons = true;
-                        
-                       $packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product,  'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
-                       //$packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product, 'item_package' => $item_package ];
+                        } else {
+                            
+                        }
                     }
-                }
-                $cart_packages = array_merge($cart_packages, $packages_product);
+                });
+            }
+    </script>
+<!-- </div> -->
+<section class="product-table">  
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <form class="woocommerce-cart-form" action="<?php echo esc_url( wc_get_cart_url() ); ?>" method="post">
+                    <?php do_action( 'woocommerce_before_cart_table' ); ?>
+                    <?php   
+                    echo '<input type="submit" name="clear_cart" value="Clear Cart">';
+                    echo ' ( temporary button for clearing packages ) ';
 
-             }
-             //var_dump($cart_packages);
+                    if( isset($_POST['clear_cart']) ){
+                            WC()->cart->empty_cart();
+                            WC()->session->set('wcgb_packages', '' );
+                            WC()->session->set('wcgb_current_package',  '' );
+                    }
+                            
+                        $wcgb_packages = WC()->session->get('wcgb_packages');
+                        $current_package = WC()->session->get('wcgb_current_package');
+                        
+                        //var_dump(WC()->session);
+                        
+                        $showButtons = false;
 
-           
-            // $gift_box = [];
-            // foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-            //         $product_id = $cart_item['product_id'] ;
-            //         $is_gift_box = get_post_meta( $product_id, 'is_gift_box', true );
+                            if( isset($_POST['new_box']) ){
+
+                                if(  !$wcgb_packages && !$current_package ){
+	
+                                    WC()->session->set('wcgb_packages', [ 'package1' => ['product_id' => 'new','cart_item_key' => '' ] ] );
+                                    WC()->session->set('wcgb_current_package', 'package1' );
                     
-            //         if($is_gift_box == true){
-            //             $gift_box[] = $product_id;
-            //         }
-            // }
-            $gift_box_public = new Woocommerce_Gift_Box_Public();
-            
-            $giftBoxes = $gift_box_public->wcgb_get_gift_box_options();
+                                }else{
+                                    $currentPackageCount = count($wcgb_packages ) + 1;
+                                    $current_package = 'package'.$currentPackageCount;
+                                    $wcgb_packages = array_merge($wcgb_packages, [  $current_package => ['product_id' => 'new','cart_item_key' => '' ] ]);
+    
+                                    WC()->session->set('wcgb_packages', $wcgb_packages );
+                                    WC()->session->set('wcgb_current_package',  $current_package );
+                                    WC()->session->set('wcgb_new_package', 'true' );
+                                }
 
+                                
+                            }
+                            //var_dump($wcgb_packages); 
+                            //var_dump($current_package); 
+                            //die;
+                        
+                            $cart_packages = [];
 
-            foreach($wcgb_packages as $package => $package_product){ 
-                echo $package;
-                echo get_the_title( $package_product );
-                ?>
+                            foreach($wcgb_packages as $package => $data){
 
-                <table class="shop_table shop_table_responsive cart woocommerce-cart-form__contents"> 
-                    <tr>
-                        <h3> Gift Box :
-                            <select>
-                                <option value="">Select Gift Box</option>;
-                                <?php 
-                                    foreach ($giftBoxes as $box ) {
+                                //var_dump($package);
+                                $package_product = $data['product_id'];
+
+                                $packages_product = [];
+                                foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+                                    
+                                    $product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
+
+                                    $item_package = $cart_item['item_package'];
+                    
+                                    $is_gift_box = get_post_meta( $product_id, 'is_gift_box', true );
+
+                                    if( $package == $item_package && $package_product != $product_id && $is_gift_box != 'true' ){
                                         
-                                        echo '<option value="'.$box.'" '.selected( $package_product, $box, false).'>'.get_the_title( $box ).'</option>';
+                                        if($current_package == $package && $package_product != 'new' )
+                                                $showButtons = true;
+                                        
+                                    $packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product,  'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
+                                    //$packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product, 'item_package' => $item_package ];
                                     }
+                                }
+                                $cart_packages = array_merge($cart_packages, $packages_product);
 
+                            }
+                           // var_dump($cart_packages); die;
+
+                        
+
+                            $gift_box_public = new Woocommerce_Gift_Box_Public();
+                            
+                            $giftBoxes = $gift_box_public->wcgb_get_gift_box_options();
+
+
+                            foreach($wcgb_packages as $package => $data){ 
+                                //echo $package;
+                                //echo get_the_title( $package_product );
+                                $package_product = $data['product_id'];
+                                $cart_item_key = $data['cart_item_key'];
                                 ?>
-                            </select>    
-                        </h3>
-
-                        <a href='#'>Delete Package</a>
-                    </tr>
-                    <?php 
-                        foreach ( $cart_packages as $product ) {
-                            
-                            if($product['package'] != $package ) continue;
-                            
-                            $cart_item = $product['cart_item'];
-                            $cart_item_key  = $product['cart_item_key'];
-
-                            $_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
-				            $product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
-
-                            ?>
-                            <tr class="woocommerce-cart-form__cart-item <?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?>">
-
-                                <td class="product-remove">
-                                    <?php
-                                        echo apply_filters( 'woocommerce_cart_item_remove_link', sprintf(
-                                            '<a href="%s" class="cart-remove" aria-label="%s" data-product_id="%s" data-product_sku="%s"><i class="pe-7s-close-circle"></i></a>',
-                                            esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
-                                            __( 'Remove this item', 'g5plus-handmade' ),
-                                            esc_attr( $product_id ),
-                                            esc_attr( $_product->get_sku() )
-                                        ), $cart_item_key );
-                                    ?>
-                                </td>
-
-                                <td class="product-name" data-title="<?php esc_attr_e( 'Product', 'g5plus-handmade' ); ?>">
-
-                                    <?php
-                                    $thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
-
-                                    if ( ! $product_permalink ) {
-                                        echo wp_kses_post( $thumbnail );
-                                    } else {
-                                        printf( '<a href="%s">%s</a>', esc_url( $product_permalink ), wp_kses_post( $thumbnail ) );
-                                    }
-                                    ?>
-                                    <div class="product-name-wrap">
-                                        <div class="product-name-inner">
-                                            <?php
-                                            if ( ! $product_permalink ) {
-                                                echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key ) . '&nbsp;' );
-                                            } else {
-                                                echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', sprintf( '<a href="%s">%s</a>', esc_url( $product_permalink ), $_product->get_name() ), $cart_item, $cart_item_key ) );
-                                            }
-
-                                            do_action( 'woocommerce_after_cart_item_name', $cart_item, $cart_item_key );
-
-                                            // Meta data.
-                                            echo wc_get_formatted_cart_item_data( $cart_item ); // PHPCS: XSS ok.
-
-                                            // Backorder notification
-                                            if ( $_product->backorders_require_notification() && $_product->is_on_backorder( $cart_item['quantity'] ) ) {
-                                                echo wp_kses_post( apply_filters( 'woocommerce_cart_item_backorder_notification', '<p class="backorder_notification">' . esc_html__( 'Available on backorder', 'g5plus-handmade' ) . '</p>' ) );
-                                            }
-                                            ?>
+                                <div class="package-gb-cont">
+                                    
+                                    <div class="cb-pack-con">
+                                        <div class="cb-pack-info"> 
+                                            <h3 class="pack-n"> <?php echo $package; ?></h3>
+                                        </div>
+        
+                                        <div class="cb-pack-rec">
+                                            <h1 id="btnOpenForm">Add Receipient</h1>
+                                            <div class="form-popup-bg">
+                                                <div class="form-container">
+                                                    <button id="btnCloseForm" class="close-button">X</button>
+                                                    <p>Recipient Delivery Details</p>
+                                                    <!-- <form action=""> -->
+                                                        <div class="form-group">
+                                                            <label for="">Name</label>
+                                                            <input type="text" class="form-control">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="">Company Name</label>
+                                                            <input class="form-control" type="text">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="">E-Mail Address</label>
+                                                            <input class="form-control" type="text">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="">Phone Number</label>
+                                                            <input class="form-control" type="text">
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="">Address</label>
+                                                            <input class="form-control" type="text">
+                                                        </div>
+                                                        <button class="ar-button">Submit</button>
+                                                    <!-- </form> -->
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </td>
+                                
+                                    <div class="cb-row">
+      
+                                        <div class="cb-thumb">
+                                            <img src="<?php echo get_the_post_thumbnail_url($package_product); ?>" class="pdthumb">
+                                            
+                                            <div id="demo-htmlselect" class="dd-container" style="width: 260px;">
+                                                    <!-- <div class="dd-select" style="width: 260px; background: rgb(238, 238, 238);">
+                                                        <input class="dd-selected-value" type="hidden" value="1">
+                                                        <a class="dd-selected">
+                                                            <img class="dd-selected-image" src="<?php echo get_the_post_thumbnail_url($package_product); ?>">
+                                                            <label class="dd-selected-text" style="line-height: 51px;"><?php echo get_the_title( $package_product ); ?></label>
+                                                        </a>
+                                                        <span class="dd-pointer dd-pointer-down"></span>
+                                                    </div> -->
 
-                                <td class="product-price" data-title="<?php esc_attr_e( 'Price', 'g5plus-handmade' ); ?>">
-                                    <?php
-                                        echo apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
-                                    ?>
-                                </td>
+                                                    <select class='giftbox-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gb = '<?php echo $package_product; ?>' data-old-ckey= '<?php echo $cart_item_key; ?>' >
+                                                        <option value="">Select Gift Box</option>
+                                                        <?php 
+                                                            foreach ($giftBoxes as $box ) {
+                                                                
+                                                                echo '<option value="'.$box.'" '.selected( $package_product, $box, false).' data-imagesrc="'.get_the_post_thumbnail_url($box).'" > '.get_the_title( $box ).'</option>';
+                                                            }
 
-                                <td class="product-quantity" data-title="<?php esc_attr_e( 'Quantity', 'g5plus-handmade' ); ?>">
-                                    <?php
-                                        if ( $_product->is_sold_individually() ) {
-                                            $product_quantity = sprintf( '1 <input type="hidden" name="cart[%s][qty]" value="1" />', $cart_item_key );
-                                        } else {
-                                            $product_quantity = woocommerce_quantity_input( array(
-                                                'input_name'    => "cart[{$cart_item_key}][qty]",
-                                                'input_value'   => $cart_item['quantity'],
-                                                'max_value'     => $_product->get_max_purchase_quantity(),
-                                                'min_value'     => '0',
-                                                'product_name'  => $_product->get_name(),
-                                            ), $_product, false );
+                                                        ?>
+                                                    </select>    
+                                                    <script>
+                                                        jQuery(document).ready(function(e) {
+                                                            jQuery('.giftbox-dropdown-<?php echo $package; ?>').ddslick({
+                                                                    onSelected: function(selectedData){
+                                                                        var package = jQuery( selectedData.original ).data('package');
+                                                                        var old_gb_id = jQuery( selectedData.original ).data('old-gb');
+                                                                        var old_gb_ckey = jQuery( selectedData.original ).data('old-ckey');
+
+                                                                        var new_gb_id =  selectedData.selectedData.value;
+                                                                        
+                                                                        if(new_gb_id != old_gb_id ){    
+                                                                            changeGiftBox(package, new_gb_id, old_gb_id, old_gb_ckey );
+                                                                        }
+                                                                        
+                                                                    }   
+                                                                });
+                                                        });
+                                                
+                                                    </script>
+
+
+
+
+                                            </div>
+                                            
+                                        </div>
+                                    
+                                    <div class="cb-item-price">
+                                        <?php 
+                                            
+                                                $_product = wc_get_product( $package_product ); 
+                                                if($_product){
+                                                    echo( $_product->get_regular_price() != '$0' )?  '<h2 class="item-cb"> $<span>'.$_product->get_regular_price().'</span> </h2>' : '<h2 class="item-cb-free"> FREE</h2>';
+                                                }
+                                            
+                                        ?>
+                                    </div>
+                                    
+                                            
+                                </div>
+
+                                    <?php 
+                                        foreach ( $cart_packages as $product ) {
+                                            
+                                            if($product['package'] != $package ) continue;
+                                            
+                                            $cart_item = $product['cart_item'];
+                                            $cart_item_key  = $product['cart_item_key'];
+
+                                            $_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
+                                            $product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
+
+                                            ?>
+
+                                            <div class="gf-row">
+                                                
+                                                <div class="gf-thumb">
+                                                <!-- <img src="Bookblock-Florists-pink-spray-large-arrangement-main.jpg" class="pdthumb"> -->
+                                                    <?php
+                                                        $thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
+
+                                                        if ( ! $product_permalink ) {
+                                                            echo wp_kses_post( $thumbnail );
+                                                        } else {
+                                                            printf( '<a href="%s">%s</a>', esc_url( $product_permalink ), wp_kses_post( $thumbnail ) );
+                                                        }
+                                                    ?>
+                                                </div>
+                                                
+                                                <div class="gf-item-detail">
+                                                <!-- <h2 class="item-title"> Flowers Lily </h2> -->
+                                                        <?php
+                                                            if ( ! $product_permalink ) {
+                                                                echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key ) . '&nbsp;' );
+                                                            } else {
+                                                                echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', sprintf( '<a href="%s" class="item-title" >%s</a>', esc_url( $product_permalink ), $_product->get_name() ), $cart_item, $cart_item_key ) );
+                                                            }
+
+                                                            do_action( 'woocommerce_after_cart_item_name', $cart_item, $cart_item_key );
+
+                                                            // Meta data.
+                                                            echo wc_get_formatted_cart_item_data( $cart_item ); // PHPCS: XSS ok.
+
+                                                            // Backorder notification
+                                                            if ( $_product->backorders_require_notification() && $_product->is_on_backorder( $cart_item['quantity'] ) ) {
+                                                                echo wp_kses_post( apply_filters( 'woocommerce_cart_item_backorder_notification', '<p class="backorder_notification">' . esc_html__( 'Available on backorder', 'g5plus-handmade' ) . '</p>' ) );
+                                                            }
+                                                        ?>
+                                                <p class="item-sku"> <b>SKU :</b> <span> ER345</span> </p>
+                                                </div>
+                                                
+                                                <div class="gf-item-count">
+                                                    <!-- <span class="quantity-minus">-</span>
+                                                    <span class="quantity-count" style="vertical-align: middle;">2</span>
+                                                    <span class="quantity-plus">+</span> -->
+                                                    <?php
+                                                        if ( $_product->is_sold_individually() ) {
+                                                            $product_quantity = sprintf( '1 <input type="hidden" name="cart[%s][qty]" value="1" />', $cart_item_key );
+                                                        } else {
+                                                            $product_quantity = woocommerce_quantity_input( array(
+                                                                'input_name'    => "cart[{$cart_item_key}][qty]",
+                                                                'input_value'   => $cart_item['quantity'],
+                                                                'max_value'     => $_product->get_max_purchase_quantity(),
+                                                                'min_value'     => '0',
+                                                                'product_name'  => $_product->get_name(),
+                                                            ), $_product, false );
+                                                        }
+
+                                                        echo apply_filters( 'woocommerce_cart_item_quantity', $product_quantity, $cart_item_key, $cart_item );
+                                                    ?>
+                                                </div>
+                                                
+                                                <div class="gf-item-price">
+                                                <h2 class="item-price"> 
+                                                    <!-- $<span>150 </span>  -->
+                                                    <?php
+                                                        echo apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
+                                                    ?>
+                                                    </h2>
+                                                </div>
+                                                
+                                                <div class="gf-row-delete">
+                                                <?php
+                                                        echo apply_filters( 'woocommerce_cart_item_remove_link', sprintf(
+                                                            '<a href="%s" class="cart-remove" aria-label="%s" data-product_id="%s" data-product_sku="%s"><i class="fa fa-trash"></i></a>',
+                                                            esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
+                                                            __( 'Remove this item', 'g5plus-handmade' ),
+                                                            esc_attr( $product_id ),
+                                                            esc_attr( $_product->get_sku() )
+                                                        ), $cart_item_key );
+                                                    ?>
+                                                
+                                                </div>
+                                                
+                                            </div>
+                                            <?php
+
                                         }
-
-                                        echo apply_filters( 'woocommerce_cart_item_quantity', $product_quantity, $cart_item_key, $cart_item );
+                                    
                                     ?>
-                                </td>
 
-                                <td class="product-subtotal" data-title="<?php esc_attr_e( 'Total', 'g5plus-handmade' ); ?>">
-                                    <?php
-                                        echo apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key );
-                                    ?>
-                                </td>
-                                </tr>
+                                    <div class="pack-rb">
+                                        <button class="pd-button">Delete package</button>
+                                        </div>
+                                </div>
+                            <?php } ?>
+                        
+                        <div class="package-gb-cont">
+                            <?php if ( wc_coupons_enabled() ) { ?>
+                                <div class="coupon">
+                                    <label for="coupon_code"><?php _e( 'Coupon:', 'g5plus-handmade' ); ?></label> <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php esc_attr_e( 'Coupon code', 'g5plus-handmade' ); ?>" /> <input type="submit" class="button" name="apply_coupon" value="<?php esc_attr_e( 'Apply coupon', 'g5plus-handmade' ); ?>" />
+                                    <?php do_action( 'woocommerce_cart_coupon' ); ?>
+                                </div>
+                            <?php } ?>
 
-                            <?php
+                            <input type="submit" class="button" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'g5plus-handmade' ); ?>" />
+                            
+                            <?php if($showButtons ) { ?>
+                                <?php do_action( 'woocommerce_proceed_to_checkout' ); ?>
+                                <input type="submit" class="button" name="new_box" value="<?php esc_attr_e( 'Add New Box', 'g5plus-handmade' ); ?>" />
+                            <?php }?>
 
-                        }
-                    
-                    ?>
-                </table>
+                            <?php do_action( 'woocommerce_cart_actions' ); ?>
 
-            <?php } ?>
+                            <?php wp_nonce_field( 'woocommerce-cart', 'woocommerce-cart-nonce' ); ?>
+                        </div>
+
+                    <?php do_action( 'woocommerce_after_cart_contents' ); ?>
+
+                    <?php do_action( 'woocommerce_after_cart_table' ); ?>
+                </form>
+                
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+
+ 
+
+    function closeForm() {
+        jQuery('.form-popup-bg').removeClass('is-visible');
+    }
+
+    jQuery(document).ready(function($) {
+    
+    /* Contact Form Interactions */
+        jQuery('#btnOpenForm').on('click', function(event) {
+            event.preventDefault();
+            jQuery('.form-popup-bg').addClass('is-visible');
+        });
+    
+        //close popup when clicking x or off popup
+        jQuery('.form-popup-bg').on('click', function(event) {
+            if (jQuery(event.target).is('.form-popup-bg') || jQuery(event.target).is('#btnCloseForm')) {
+                 event.preventDefault();
+                jQuery(this).removeClass('is-visible');
+            }
+        });
+    
+    
+    
+    });
+
+</script>
+    
+<script>
+    // jQuery('.giftbox-dropdown').on('hover', function(e){
+    //     jQuery(this).ddslick({
+    //         onSelected: function(selectedData){
+    //             //callback function: do something with selectedData;
+    //         }   
+    //     });
+    // })
 
 
-	<table class="shop_table shop_table_responsive cart woocommerce-cart-form__contents" cellspacing="0">
-		<!-- <thead>
-			<tr>
-				<th class="product-remove">&nbsp;</th>
-				<th class="product-name"><?php _e( 'Product', 'g5plus-handmade' ); ?></th>
-				<th class="product-price"><?php _e( 'Price', 'g5plus-handmade' ); ?></th>
-				<th class="product-quantity"><?php _e( 'Quantity', 'g5plus-handmade' ); ?></th>
-				<th class="product-subtotal"><?php _e( 'Total', 'g5plus-handmade' ); ?></th>
-			</tr>
-		</thead> -->
-		<tbody>
-			<?php do_action( 'woocommerce_before_cart_contents' ); ?>
-<!-- 
-			<?php
-			foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
-				$_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
-				$product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
+    // jQuery('#demo-giftwrap').ddslick({
+    //     onSelected: function(selectedData){
+    //         //callback function: do something with selectedData;
+    //     }   
+    // });
+</script>
 
-				if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
-					$product_permalink = apply_filters( 'woocommerce_cart_item_permalink', $_product->is_visible() ? $_product->get_permalink( $cart_item ) : '', $cart_item, $cart_item_key );
-					?>
-					<tr class="woocommerce-cart-form__cart-item <?php echo esc_attr( apply_filters( 'woocommerce_cart_item_class', 'cart_item', $cart_item, $cart_item_key ) ); ?>">
-
-						<td class="product-remove">
-							<?php
-								echo apply_filters( 'woocommerce_cart_item_remove_link', sprintf(
-									'<a href="%s" class="cart-remove" aria-label="%s" data-product_id="%s" data-product_sku="%s"><i class="pe-7s-close-circle"></i></a>',
-									esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
-									__( 'Remove this item', 'g5plus-handmade' ),
-									esc_attr( $product_id ),
-									esc_attr( $_product->get_sku() )
-								), $cart_item_key );
-							?>
-						</td>
-
-						<td class="product-name" data-title="<?php esc_attr_e( 'Product', 'g5plus-handmade' ); ?>">
-
-							<?php
-							$thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
-
-							if ( ! $product_permalink ) {
-								echo wp_kses_post( $thumbnail );
-							} else {
-								printf( '<a href="%s">%s</a>', esc_url( $product_permalink ), wp_kses_post( $thumbnail ) );
-							}
-							?>
-							<div class="product-name-wrap">
-								<div class="product-name-inner">
-									<?php
-									if ( ! $product_permalink ) {
-										echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key ) . '&nbsp;' );
-									} else {
-										echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', sprintf( '<a href="%s">%s</a>', esc_url( $product_permalink ), $_product->get_name() ), $cart_item, $cart_item_key ) );
-									}
-
-									do_action( 'woocommerce_after_cart_item_name', $cart_item, $cart_item_key );
-
-									// Meta data.
-									echo wc_get_formatted_cart_item_data( $cart_item ); // PHPCS: XSS ok.
-
-									// Backorder notification
-									if ( $_product->backorders_require_notification() && $_product->is_on_backorder( $cart_item['quantity'] ) ) {
-										echo wp_kses_post( apply_filters( 'woocommerce_cart_item_backorder_notification', '<p class="backorder_notification">' . esc_html__( 'Available on backorder', 'g5plus-handmade' ) . '</p>' ) );
-									}
-									?>
-								</div>
-							</div>
-						</td>
-
-						<td class="product-price" data-title="<?php esc_attr_e( 'Price', 'g5plus-handmade' ); ?>">
-							<?php
-								echo apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
-							?>
-						</td>
-
-						<td class="product-quantity" data-title="<?php esc_attr_e( 'Quantity', 'g5plus-handmade' ); ?>">
-							<?php
-								if ( $_product->is_sold_individually() ) {
-									$product_quantity = sprintf( '1 <input type="hidden" name="cart[%s][qty]" value="1" />', $cart_item_key );
-								} else {
-                                    $product_quantity = woocommerce_quantity_input( array(
-                                        'input_name'    => "cart[{$cart_item_key}][qty]",
-                                        'input_value'   => $cart_item['quantity'],
-                                        'max_value'     => $_product->get_max_purchase_quantity(),
-                                        'min_value'     => '0',
-                                        'product_name'  => $_product->get_name(),
-                                    ), $_product, false );
-								}
-
-								echo apply_filters( 'woocommerce_cart_item_quantity', $product_quantity, $cart_item_key, $cart_item );
-							?>
-						</td>
-
-						<td class="product-subtotal" data-title="<?php esc_attr_e( 'Total', 'g5plus-handmade' ); ?>">
-							<?php
-								echo apply_filters( 'woocommerce_cart_item_subtotal', WC()->cart->get_product_subtotal( $_product, $cart_item['quantity'] ), $cart_item, $cart_item_key );
-							?>
-						</td>
-					</tr>
-					<?php
-				}
-			}
-			?> -->
-
-			<?php do_action( 'woocommerce_cart_contents' ); ?>
-
-			<tr>
-				<td colspan="5" class="actions clearfix">
-
-					<?php if ( wc_coupons_enabled() ) { ?>
-						<div class="coupon">
-							<label for="coupon_code"><?php _e( 'Coupon:', 'g5plus-handmade' ); ?></label> <input type="text" name="coupon_code" class="input-text" id="coupon_code" value="" placeholder="<?php esc_attr_e( 'Coupon code', 'g5plus-handmade' ); ?>" /> <input type="submit" class="button" name="apply_coupon" value="<?php esc_attr_e( 'Apply coupon', 'g5plus-handmade' ); ?>" />
-							<?php do_action( 'woocommerce_cart_coupon' ); ?>
-						</div>
-					<?php } ?>
-
-					<input type="submit" class="button" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'g5plus-handmade' ); ?>" />
-                    
-                    <?php if($showButtons ) { ?>
-					    <?php do_action( 'woocommerce_proceed_to_checkout' ); ?>
-                        <input type="submit" class="button" name="new_box" value="<?php esc_attr_e( 'Add New Box', 'g5plus-handmade' ); ?>" />
-                    <?php }?>
-
-					<?php do_action( 'woocommerce_cart_actions' ); ?>
-
-					<?php wp_nonce_field( 'woocommerce-cart', 'woocommerce-cart-nonce' ); ?>
-				</td>
-			</tr>
-
-			<?php do_action( 'woocommerce_after_cart_contents' ); ?>
-		</tbody>
-	</table>
-	<?php do_action( 'woocommerce_after_cart_table' ); ?>
-</form>
 <?php do_action( 'woocommerce_before_cart_collaterals' ); ?>
 <div class="cart-collaterals">
 	<?php do_action( 'woocommerce_cart_collaterals' ); ?>

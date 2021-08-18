@@ -103,9 +103,10 @@ class Woocommerce_Gift_Box_Public {
 	}
 	public function wcgb_create_shortcode(){
 		add_shortcode( 'gift_box_products', array($this, 'gift_box_short_code_callback') );
+		add_shortcode( 'gift_wrap_products', array($this, 'gift_wrap_short_code_callback') );
 	}
 
-	 function gift_box_short_code_callback(){ 
+	function gift_box_short_code_callback(){ 
 		ob_start();
 		?>
 		<div class="product-listing woocommerce clearfix columns-4">
@@ -113,10 +114,58 @@ class Woocommerce_Gift_Box_Public {
 			//echo get_theme_mod('woocommerce_catalog_columns');
 			
 				$args = array(
-					'post_type' => 'product',
-					'posts_per_page' => -1,
-					'meta_key' => 'is_gift_box',
-					'meta_value' => 'true'
+					'post_type' 		=> 'product',
+					'posts_per_page' 	=> -1,
+					'order'				=> 'asc',
+					'orderby'        	=> 'meta_value_num',
+					'meta_key'       	=> '_price',
+					'meta_query' => array(
+									array(
+										'key'     => 'is_gift_box',
+										'value'   => 'true'
+									),
+								),
+				);
+				$loop = new WP_Query( $args );
+				if ( $loop->have_posts() ) {
+					while ( $loop->have_posts() ) : $loop->the_post();
+						
+							wc_get_template_part( 'content', 'product' );
+						
+					endwhile;
+				} else {
+					echo __( 'No products found' );
+				}
+				wp_reset_postdata();
+			?>
+		</div>
+		<?php
+		$output_string = ob_get_contents();
+		ob_end_clean();
+		return $output_string;
+	}
+
+
+	function gift_wrap_short_code_callback(){ 
+		ob_start();
+		?>
+
+		<div class="product-listing woocommerce clearfix columns-4">
+			<?php
+			//echo get_theme_mod('woocommerce_catalog_columns');
+			
+				$args = array(
+					'post_type' 		=> 'product',
+					'posts_per_page' 	=> -1,
+					'order'				=> 'asc',
+					'orderby'        	=> 'meta_value_num',
+					'meta_key'       	=> '_price',
+					'meta_query' => array(
+									array(
+										'key'     => 'is_gift_wrap',
+										'value'   => 'true'
+									),
+								),
 					);
 				$loop = new WP_Query( $args );
 				if ( $loop->have_posts() ) {
@@ -136,6 +185,11 @@ class Woocommerce_Gift_Box_Public {
 		ob_end_clean();
 		return $output_string;
 	}
+
+
+
+
+
 
 	public function wcgb_hide_box_and_wrap($q){
 		$meta_query = $q->get( 'meta_query' );
@@ -241,10 +295,17 @@ class Woocommerce_Gift_Box_Public {
 		
 		$options = [];
 		$args = array(
-			'post_type' => 'product',
-			'posts_per_page' => -1,
-			'meta_key' => 'is_gift_box',
-			'meta_value' => 'true'
+			'post_type' 		=> 'product',
+			'posts_per_page' 	=> -1,
+			'order'				=> 'asc',
+			'orderby'        	=> 'meta_value_num',
+			'meta_key'       	=> '_price',
+			'meta_query' => array(
+							array(
+								'key'     => 'is_gift_box',
+								'value'   => 'true'
+							),
+						),
 			);
 		$loop = new WP_Query( $args );
 		if ( $loop->have_posts() ) {
@@ -269,13 +330,11 @@ class Woocommerce_Gift_Box_Public {
 			'post_type' 		=> 'product',
 			'posts_per_page' 	=> -1,
 			'order'				=> 'asc',
+			'orderby'        	=> 'meta_value_num',
+			'meta_key'       	=> '_price',
 			'meta_query' => array(
 							array(
 								'key'     => 'is_gift_wrap',
-								'value'   => 'true'
-							),
-							array(
-								'key'     => '_price',
 								'value'   => 'true'
 							),
 						),

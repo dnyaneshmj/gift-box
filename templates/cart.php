@@ -278,6 +278,41 @@ do_action( 'woocommerce_before_cart' ); ?>
                     }
                 });
             }
+
+            function changeGiftWrap( package, new_gw_id, old_gw_id,old_gw_ckey ) {
+                var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+                    
+                var formData = {
+                    package: package,
+                    new_gw_id: new_gw_id,
+                    old_gw_id: old_gw_id,
+                    old_gw_ckey: old_gw_ckey
+                };
+
+                jQuery.ajax({
+                    url: ajaxurl,
+                    type: 'post',
+                    data: {
+                        formData: formData,
+                        // security: check_ref,
+                        dataType: "json",
+                        encode: true,
+                        action: 'wcgb_change_gw_in_cart'
+                    },
+                    error: function(response) {
+                        console.log(response);
+                    },
+                    success: function(response) {
+                        
+                        if (response.success) {
+                            window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+
+                        } else {
+                            
+                        }
+                    }
+                });
+            }
     </script>
 <!-- </div> -->
 <section class="product-table">  
@@ -358,16 +393,18 @@ do_action( 'woocommerce_before_cart' ); ?>
 
                         
 
-                            $gift_box_public = new Woocommerce_Gift_Box_Public();
+                            $gift_box_public = new Woocommerce_Gift_Box_Public('',1.0);
                             
                             $giftBoxes = $gift_box_public->wcgb_get_gift_box_options();
-
+                            $giftWraps = $gift_box_public->wcgb_get_gift_wrap_options();
+                            
 
                             foreach($wcgb_packages as $package => $data){ 
                                 //echo $package;
                                 //echo get_the_title( $package_product );
                                 $package_product = $data['product_id'];
-                                $cart_item_key = $data['cart_item_key'];
+                                $gb_cart_item_key = $data['cart_item_key'];
+
                                 ?>
                                 <div class="package-gb-cont">
                                     
@@ -425,8 +462,7 @@ do_action( 'woocommerce_before_cart' ); ?>
                                                         <span class="dd-pointer dd-pointer-down"></span>
                                                     </div> -->
 
-                                                    <select class='giftbox-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gb = '<?php echo $package_product; ?>' data-old-ckey= '<?php echo $cart_item_key; ?>' >
-                                                        <option value="">Select Gift Box</option>
+                                                    <select class='giftbox-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gb = '<?php echo $package_product; ?>' data-old-ckey= '<?php echo $gb_cart_item_key; ?>' >
                                                         <?php 
                                                             foreach ($giftBoxes as $box ) {
                                                                 
@@ -559,11 +595,13 @@ do_action( 'woocommerce_before_cart' ); ?>
                                                 <div class="gf-row-delete">
                                                 <?php
                                                         echo apply_filters( 'woocommerce_cart_item_remove_link', sprintf(
-                                                            '<a href="%s" class="cart-remove" aria-label="%s" data-product_id="%s" data-product_sku="%s"><i class="fa fa-trash"></i></a>',
+                                                            '<a href="%s" class="cart-remove %s" aria-label="%s" data-product_id="%s" data-product_sku="%s" data-cikey="%s"><i class="fa fa-trash"></i></a>',
                                                             esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
+                                                            'delete-'.$product['package'],
                                                             __( 'Remove this item', 'g5plus-handmade' ),
                                                             esc_attr( $product_id ),
-                                                            esc_attr( $_product->get_sku() )
+                                                            esc_attr( $_product->get_sku() ),
+                                                            $cart_item_key
                                                         ), $cart_item_key );
                                                     ?>
                                                 
@@ -575,10 +613,54 @@ do_action( 'woocommerce_before_cart' ); ?>
                                         }
                                     
                                     ?>
-
-                                    <div class="pack-rb">
-                                        <button class="pd-button">Delete package</button>
+                                    <div class="cb-row">
+                                        
+                                        <div class="cb-thumb">
+                                            <!-- <img class="pdthumb" src="Valentines-hearts-box-mock.png"> -->
                                         </div>
+                                        
+                                        <div id="demo-giftwrap" class="dd-container" style="width: 260px;">
+                                            <select class='giftwrap-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gw = '<?php echo $package_product; ?>' data-old-ckey= '<?php echo $gb_cart_item_key; ?>' >  
+                                                <?php 
+                                                    foreach ($giftWraps as $wrap ) {
+                                                        
+                                                        echo '<option value="'.$wrap.'" '.selected( $package_product, $wrap, false).' data-imagesrc="'.get_the_post_thumbnail_url($wrap).'" > '.get_the_title( $wrap ).'</option>';
+                                                    }
+
+                                                ?>
+                                            </select>    
+                                                    <script>
+                                                        jQuery(document).ready(function(e) {
+                                                            jQuery('.giftwrap-dropdown-<?php echo $package; ?>').ddslick({
+                                                                    onSelected: function(selectedData){
+                                                                        var package = jQuery( selectedData.original ).data('package');
+                                                                        var old_gw_id = jQuery( selectedData.original ).data('old-gw');
+                                                                        var old_gw_ckey = jQuery( selectedData.original ).data('old-ckey');
+
+                                                                        var new_gw_id =  selectedData.selectedData.value;
+                                                                        
+                                                                        if(new_gw_id != old_gw_id ){    
+                                                                            changeGiftWrap(package, new_gw_id, old_gw_id, old_gw_ckey );
+                                                                        }
+                                                                        
+                                                                    }   
+                                                                });
+                                                        });
+                                                
+                                                    </script>
+                                            
+                                        </div>
+                                        
+                                        <div class="cb-item-price">
+                                            <h2 class="item-cb-free"> FREE</h2>
+                                            <h2 class="item-cb" style="display:none;"> $<span>150 </span> </h2>
+                                        </div>
+                                        
+                                                
+                                    </div>
+                                    <div class="pack-rb">
+                                        <button class="delete-package pd-button" data-package='<?php echo $package; ?>' data-gb-id = '<?php echo $package_product; ?>' data-gb-ckey= '<?php echo $gb_cart_item_key; ?>'  >Delete package</button>
+                                    </div>
                                 </div>
                             <?php } ?>
                         
@@ -621,7 +703,56 @@ do_action( 'woocommerce_before_cart' ); ?>
     }
 
     jQuery(document).ready(function($) {
-    
+
+        jQuery('.delete-package').on('click', function(e) {
+
+            e.preventDefault();
+            var package = jQuery(this).data('package');
+            var gb_key = jQuery(this).data('gb-ckey');
+            var gb_id = jQuery(this).data('gb-id');
+
+            var products = [];
+            jQuery(".delete-"+package).map(function() {
+                products.push(jQuery(this).data('cikey'));
+            }).get();
+
+            console.log(products);
+
+            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+                    
+            var formData = {
+                package: package,
+                gb_key: gb_key,
+                products: products,
+            };
+
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'post',
+                data: {
+                    formData: formData,
+                    // security: check_ref,
+                    dataType: "json",
+                    encode: true,
+                    action: 'wcgb_remove_pkg_from_cart'
+                },
+                error: function(response) {
+                    console.log(response);
+                },
+                success: function(response) {
+                    
+                    if (response.success) {
+                        window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+
+                    } else {
+                        
+                    }
+                }
+            });
+            
+        
+        });
+
     /* Contact Form Interactions */
         jQuery('#btnOpenForm').on('click', function(event) {
             event.preventDefault();

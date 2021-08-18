@@ -262,8 +262,73 @@ class Woocommerce_Gift_Box_Public {
 			
 	}
 
+	public function wcgb_get_gift_wrap_options(){
+		
+		$options = [];
+		$args = array(
+			'post_type' 		=> 'product',
+			'posts_per_page' 	=> -1,
+			'order'				=> 'asc',
+			'meta_query' => array(
+							array(
+								'key'     => 'is_gift_wrap',
+								'value'   => 'true'
+							),
+							array(
+								'key'     => '_price',
+								'value'   => 'true'
+							),
+						),
+			);
+		$loop = new WP_Query( $args );
+		if ( $loop->have_posts() ) {
+			while ( $loop->have_posts() ) : $loop->the_post();
+				
+			$options[] = get_the_ID();
+				
+			endwhile;
+		} else {
+			$options = [];
+		}
+		wp_reset_postdata();
+
+		return $options;
+			
+	}
+
+	public function wcgb_change_gw_value_in_cart(){
+
+		$formData = $_POST['formData'];
+		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
+		$new_gw_id = isset($formData['new_gw_id']) && $formData['new_gw_id'] != '' ? $formData['new_gw_id'] : '' ;
+		$old_gw_id = isset($formData['old_gw_id']) && $formData['old_gw_id'] != '' ? $formData['old_gw_id'] : '' ;
+		$old_gw_ckey = isset($formData['old_gw_ckey']) && $formData['old_gw_ckey'] != '' ? $formData['old_gw_ckey'] : '' ;
+	
+
+		if( $package && $new_gw_id  ){
+
+		
+			$wcgb_packages = WC()->session->get('wcgb_wraps');
+
+			//if()
+			//WC()->session->set('wcgb_wraps',  );
+			
+			//WC()->cart->add_to_cart( $new_gb_id ,1,  0,array(), array('update_package' => true , 'package' => $package  ) );
+			
+			
+			if($old_gb_id != '' && $old_gb_id != 'new')
+				$removed = WC()->cart->remove_cart_item( $old_gb_ckey );
+			
+
+			wp_send_json_success();
+            wp_die();
+
+		}
+
+	}	
 	
 	public function wcgb_change_gb_value_in_cart(){
+
 		$formData = $_POST['formData'];
 		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
 		$new_gb_id = isset($formData['new_gb_id']) && $formData['new_gb_id'] != '' ? $formData['new_gb_id'] : '' ;
@@ -292,5 +357,62 @@ class Woocommerce_Gift_Box_Public {
 
 		}
 
+	}
+
+	public function wcgb_remove_packages_from_cart(){
+		
+		$formData = $_POST['formData'];
+		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
+		$gb_key = isset($formData['gb_key']) && $formData['gb_key'] != '' ? $formData['gb_key'] : '' ;
+		$products = isset($formData['products']) && $formData['products']  ? $formData['products'] : [] ;
+
+		//$old_gb_ckey = isset($formData['old_gb_ckey']) && $formData['old_gb_ckey'] != '' ? $formData['old_gb_ckey'] : '' ;
+	
+
+		if( $package && $gb_key ){
+
+			$wcgb_packages = WC()->session->get('wcgb_packages');
+			$current_package = WC()->session->get('wcgb_current_package');
+			
+			if($wcgb_packages[$package]){
+				
+				$removed = WC()->cart->remove_cart_item( $gb_key );
+
+				unset($wcgb_packages[$package]);
+				
+				WC()->session->set('wcgb_packages', $wcgb_packages );
+
+				end($wcgb_packages);
+				$key = key($wcgb_packages);
+				WC()->session->set('wcgb_current_package', $current_package );
+				
+			}			
+			
+			if(!empty($products)){
+				foreach ($products as $key ) {
+					$removed = WC()->cart->remove_cart_item( $key );
+				}
+			}
+				
+			
+
+			wp_send_json_success();
+            wp_die();
+
+		}
+
+	}
+
+	public function prevent_admin_access() {       
+
+		if ( is_admin() && !defined('DOING_AJAX') && ( 
+			current_user_can('usercrp') || current_user_can('userpcp') ||  
+			current_user_can('subscriber') || current_user_can('contributor') || 
+			current_user_can('editor'))) {
+			  session_destroy();
+			  wp_logout();
+			  wp_redirect( home_url() );
+			 exit;
+		}
 	}
 }

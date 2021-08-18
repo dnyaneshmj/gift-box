@@ -115,16 +115,15 @@ class Woocommerce_Gift_Box_Admin {
 
 	public function wcgb_gift_product_metabox_callback($post){ 
 
-		 $is_gift_box = get_post_meta( $post->ID, 'is_gift_box', true );
-		$is_gift_wrap = get_post_meta( $post->ID, 'is_gift_wrap', true );
-		$is_individual = get_post_meta( $post->ID, 'is_individual', true );
+		$is_gift_box = (get_post_meta( $post->ID, 'is_gift_box', true ))? get_post_meta( $post->ID, 'is_gift_box', true ) : 'false';
+		$is_gift_wrap = (get_post_meta( $post->ID, 'is_gift_wrap', true ))? get_post_meta( $post->ID, 'is_gift_wrap', true ) : 'false';
+		$is_individual = (get_post_meta( $post->ID, 'is_individual', true ))? get_post_meta( $post->ID, 'is_individual', true ) : 'false';
 
 		?>
 			<div class="misc-pub-section">
 				<label for="is-gb">Is Gift Box</label>
 			
 				<select id="is-gb" name="wcgb_is_gb" style="margin: 5px;">
-					<option value="">None</option>
 					<option value="true" <?php selected(  $is_gift_box , 'true', true )?> >Yes</option>
 					<option value="false" <?php selected(  $is_gift_box , 'false', true )?>  >No</option>
 				</select>
@@ -134,7 +133,6 @@ class Woocommerce_Gift_Box_Admin {
 				<label for="is-gw">Is Gift Wrap</label>
 			
 				<select id="is-gw" name="wcgb_is_gw" style="margin: 5px;">
-					<option value="">None</option>
 					<option value="true" <?php selected(  $is_gift_wrap , 'true', true )?>  >Yes</option>
 					<option value="false" <?php selected(  $is_gift_wrap , 'false', true )?>  >No</option>
 				</select>
@@ -142,9 +140,7 @@ class Woocommerce_Gift_Box_Admin {
 			
 			<div class="misc-pub-section">
 				<label for="is-individual">Is Sold Individually</label>
-			
 				<select id="is-individual" name="wcgb_is_individual" style="margin: 5px;">
-					<option value="">None</option>
 					<option value="true" <?php selected(  $is_individual , 'true', true )?>  >Yes</option>
 					<option value="false" <?php selected(  $is_individual , 'false', true )?>  >No</option>
 				</select>

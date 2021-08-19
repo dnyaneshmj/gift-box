@@ -118,7 +118,8 @@ class Woocommerce_Gift_Box_Admin {
 		$is_gift_box = (get_post_meta( $post->ID, 'is_gift_box', true ))? get_post_meta( $post->ID, 'is_gift_box', true ) : 'false';
 		$is_gift_wrap = (get_post_meta( $post->ID, 'is_gift_wrap', true ))? get_post_meta( $post->ID, 'is_gift_wrap', true ) : 'false';
 		$is_individual = (get_post_meta( $post->ID, 'is_individual', true ))? get_post_meta( $post->ID, 'is_individual', true ) : 'false';
-
+		$is_greeting_card = (get_post_meta( $post->ID, 'is_greeting_card', true ))? get_post_meta( $post->ID, 'is_greeting_card', true ) : 'false';
+		
 		?>
 			<div class="misc-pub-section">
 				<label for="is-gb">Is Gift Box</label>
@@ -135,6 +136,15 @@ class Woocommerce_Gift_Box_Admin {
 				<select id="is-gw" name="wcgb_is_gw" style="margin: 5px;">
 					<option value="true" <?php selected(  $is_gift_wrap , 'true', true )?>  >Yes</option>
 					<option value="false" <?php selected(  $is_gift_wrap , 'false', true )?>  >No</option>
+				</select>
+			</div>
+
+			<div class="misc-pub-section">
+				<label for="is-gc">Is Greeting Card</label>
+			
+				<select id="is-gc" name="wcgb_is_gc" style="margin: 5px;">
+					<option value="true" <?php selected(  $is_greeting_card , 'true', true )?>  >Yes</option>
+					<option value="false" <?php selected(  $is_greeting_card , 'false', true )?>  >No</option>
 				</select>
 			</div>
 			
@@ -172,6 +182,14 @@ class Woocommerce_Gift_Box_Admin {
 				update_post_meta($post_id,'is_individual',$_POST['wcgb_is_individual']);
 			}else{
 				delete_post_meta($post_id,'is_individual');
+			}
+		}
+
+		if( isset($_POST['wcgb_is_gc']) && get_post_type( $post_id ) == 'product'){
+			if($_POST['wcgb_is_gc'] == 'true'){
+				update_post_meta($post_id,'is_greeting_card',$_POST['wcgb_is_gc']);
+			}else{
+				delete_post_meta($post_id,'is_greeting_card');
 			}
 		}
 	

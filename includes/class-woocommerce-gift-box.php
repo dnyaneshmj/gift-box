@@ -189,7 +189,10 @@ class Woocommerce_Gift_Box {
 		
 		$this->loader->add_action( 'wp_ajax_wcgb_change_gb_in_cart',  $plugin_public, 'wcgb_change_gb_value_in_cart' );
 		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_change_gb_in_cart',  $plugin_public, 'wcgb_change_gb_value_in_cart' );
+		
 
+		$this->loader->add_action( 'wp_ajax_wcgb_change_gw_in_cart',  $plugin_public, 'wcgb_change_gw_value_in_cart' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_change_gw_in_cart',  $plugin_public, 'wcgb_change_gw_value_in_cart' );
 
 		$this->loader->add_action( 'wp_ajax_wcgb_remove_pkg_from_cart',  $plugin_public, 'wcgb_remove_packages_from_cart' );
 		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_remove_pkg_from_cart',  $plugin_public, 'wcgb_remove_packages_from_cart' );

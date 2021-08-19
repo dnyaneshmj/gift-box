@@ -129,7 +129,7 @@ do_action( 'woocommerce_before_cart' ); ?>
         .cb-pack-rec {
             margin-left: 10%; cursor: pointer;
         }
-        #btnOpenForm {
+        .btnOpenForm {
             font-size: 15px;
             padding: 3px 3px;
             border: 1px dashed #bbb;
@@ -329,11 +329,12 @@ do_action( 'woocommerce_before_cart' ); ?>
                             WC()->cart->empty_cart();
                             WC()->session->set('wcgb_packages', '' );
                             WC()->session->set('wcgb_current_package',  '' );
+                           WC()->session->set('wcgb_wraps', '');
                     }
                             
                         $wcgb_packages = WC()->session->get('wcgb_packages');
                         $current_package = WC()->session->get('wcgb_current_package');
-                        
+                        $wcgb_wraps = WC()->session->get('wcgb_wraps');
                         //var_dump(WC()->session);
                         
                         $showButtons = false;
@@ -376,13 +377,14 @@ do_action( 'woocommerce_before_cart' ); ?>
                                     $item_package = $cart_item['item_package'];
                     
                                     $is_gift_box = get_post_meta( $product_id, 'is_gift_box', true );
+                                    $is_gift_wrap = get_post_meta( $product_id, 'is_gift_wrap', true );
 
-                                    if( $package == $item_package && $package_product != $product_id && $is_gift_box != 'true' ){
+                                    if( $package == $item_package && $package_product != $product_id && $is_gift_box != 'true' && $is_gift_wrap != 'true' ){
                                         
                                         if($current_package == $package && $package_product != 'new' )
                                                 $showButtons = true;
                                         
-                                    $packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product,  'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
+                                        $packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product,  'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
                                     //$packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product, 'item_package' => $item_package ];
                                     }
                                 }
@@ -404,6 +406,14 @@ do_action( 'woocommerce_before_cart' ); ?>
                                 //echo get_the_title( $package_product );
                                 $package_product = $data['product_id'];
                                 $gb_cart_item_key = $data['cart_item_key'];
+                                $gift_wrap = $gw_cart_item_key = '';
+
+                                if($wcgb_wraps[$package]){
+                                    $wrap_data = $wcgb_wraps[$package];
+                                    $gift_wrap = $wrap_data['product_id'];
+                                    $gw_cart_item_key = $wrap_data['cart_item_key'];
+                                }
+
 
                                 ?>
                                 <div class="package-gb-cont">
@@ -414,36 +424,8 @@ do_action( 'woocommerce_before_cart' ); ?>
                                         </div>
         
                                         <div class="cb-pack-rec">
-                                            <h1 id="btnOpenForm">Add Receipient</h1>
-                                            <div class="form-popup-bg">
-                                                <div class="form-container">
-                                                    <button id="btnCloseForm" class="close-button">X</button>
-                                                    <p>Recipient Delivery Details</p>
-                                                    <!-- <form action=""> -->
-                                                        <div class="form-group">
-                                                            <label for="">Name</label>
-                                                            <input type="text" class="form-control">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="">Company Name</label>
-                                                            <input class="form-control" type="text">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="">E-Mail Address</label>
-                                                            <input class="form-control" type="text">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="">Phone Number</label>
-                                                            <input class="form-control" type="text">
-                                                        </div>
-                                                        <div class="form-group">
-                                                            <label for="">Address</label>
-                                                            <input class="form-control" type="text">
-                                                        </div>
-                                                        <button class="ar-button">Submit</button>
-                                                    <!-- </form> -->
-                                                </div>
-                                            </div>
+                                            <h1 class="btnOpenForm" data-package="<?php echo $package; ?>">Add Receipient</h1>
+
                                         </div>
                                     </div>
                                 
@@ -451,59 +433,61 @@ do_action( 'woocommerce_before_cart' ); ?>
       
                                         <div class="cb-thumb">
                                             <img src="<?php echo get_the_post_thumbnail_url($package_product); ?>" class="pdthumb">
-                                            
-                                            <div id="demo-htmlselect" class="dd-container" style="width: 260px;">
-                                                    <!-- <div class="dd-select" style="width: 260px; background: rgb(238, 238, 238);">
-                                                        <input class="dd-selected-value" type="hidden" value="1">
-                                                        <a class="dd-selected">
-                                                            <img class="dd-selected-image" src="<?php echo get_the_post_thumbnail_url($package_product); ?>">
-                                                            <label class="dd-selected-text" style="line-height: 51px;"><?php echo get_the_title( $package_product ); ?></label>
-                                                        </a>
-                                                        <span class="dd-pointer dd-pointer-down"></span>
-                                                    </div> -->
-
-                                                    <select class='giftbox-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gb = '<?php echo $package_product; ?>' data-old-ckey= '<?php echo $gb_cart_item_key; ?>' >
-                                                        <?php 
-                                                            foreach ($giftBoxes as $box ) {
-                                                                
-                                                                echo '<option value="'.$box.'" '.selected( $package_product, $box, false).' data-imagesrc="'.get_the_post_thumbnail_url($box).'" > '.get_the_title( $box ).'</option>';
-                                                            }
-
-                                                        ?>
-                                                    </select>    
-                                                    <script>
-                                                        jQuery(document).ready(function(e) {
-                                                            jQuery('.giftbox-dropdown-<?php echo $package; ?>').ddslick({
-                                                                    onSelected: function(selectedData){
-                                                                        var package = jQuery( selectedData.original ).data('package');
-                                                                        var old_gb_id = jQuery( selectedData.original ).data('old-gb');
-                                                                        var old_gb_ckey = jQuery( selectedData.original ).data('old-ckey');
-
-                                                                        var new_gb_id =  selectedData.selectedData.value;
-                                                                        
-                                                                        if(new_gb_id != old_gb_id ){    
-                                                                            changeGiftBox(package, new_gb_id, old_gb_id, old_gb_ckey );
-                                                                        }
-                                                                        
-                                                                    }   
-                                                                });
-                                                        });
-                                                
-                                                    </script>
-
-
-
-
-                                            </div>
-                                            
                                         </div>
+
+                                        <div id="demo-htmlselect" class="dd-container" style="width: 260px;">
+                                                <!-- <div class="dd-select" style="width: 260px; background: rgb(238, 238, 238);">
+                                                    <input class="dd-selected-value" type="hidden" value="1">
+                                                    <a class="dd-selected">
+                                                        <img class="dd-selected-image" src="<?php echo get_the_post_thumbnail_url($package_product); ?>">
+                                                        <label class="dd-selected-text" style="line-height: 51px;"><?php echo get_the_title( $package_product ); ?></label>
+                                                    </a>
+                                                    <span class="dd-pointer dd-pointer-down"></span>
+                                                </div> -->
+
+                                                <select class='giftbox-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gb = '<?php echo $package_product; ?>' data-old-ckey= '<?php echo $gb_cart_item_key; ?>' >
+                                                    <?php 
+                                                        foreach ($giftBoxes as $box ) {
+                                                            $_product = wc_get_product( $box );
+                                                            $price = ( $_product->get_price() != 0)? get_woocommerce_currency_symbol().''.$_product->get_price() : 'Free';
+                                                            echo '<option value="'.$box.'" '.selected( $package_product, $box, false).' data-imagesrc="'.get_the_post_thumbnail_url($box).'" data-description="'.$price.'" > '.get_the_title( $box ).'</option>';
+                                                        }
+
+                                                    ?>
+                                                </select>    
+                                                <script>
+                                                    jQuery(document).ready(function(e) {
+                                                        jQuery('.giftbox-dropdown-<?php echo $package; ?>').ddslick({
+                                                                onSelected: function(selectedData){
+                                                                    var package = jQuery( selectedData.original ).data('package');
+                                                                    var old_gb_id = jQuery( selectedData.original ).data('old-gb');
+                                                                    var old_gb_ckey = jQuery( selectedData.original ).data('old-ckey');
+
+                                                                    var new_gb_id =  selectedData.selectedData.value;
+                                                                    
+                                                                    if(new_gb_id != old_gb_id ){    
+                                                                        changeGiftBox(package, new_gb_id, old_gb_id, old_gb_ckey );
+                                                                    }
+                                                                    
+                                                                }   
+                                                            });
+                                                    });
+                                            
+                                                </script>
+
+
+
+
+                                        </div>
+                                            
+                                       
                                     
                                     <div class="cb-item-price">
                                         <?php 
                                             
                                                 $_product = wc_get_product( $package_product ); 
                                                 if($_product){
-                                                    echo( $_product->get_regular_price() != '$0' )?  '<h2 class="item-cb"> $<span>'.$_product->get_regular_price().'</span> </h2>' : '<h2 class="item-cb-free"> FREE</h2>';
+                                                    echo( $_product->get_price() != '0' )?  '<h2 class="item-cb"> $<span>'.$_product->get_price().'</span> </h2>' : '<h2 class="item-cb-free"> FREE</h2>';
                                                 }
                                             
                                         ?>
@@ -513,10 +497,13 @@ do_action( 'woocommerce_before_cart' ); ?>
                                 </div>
 
                                     <?php 
+                                    $is_have_product = false;
                                         foreach ( $cart_packages as $product ) {
                                             
                                             if($product['package'] != $package ) continue;
                                             
+                                            $is_have_product = true; 
+
                                             $cart_item = $product['cart_item'];
                                             $cart_item_key  = $product['cart_item_key'];
 
@@ -611,20 +598,30 @@ do_action( 'woocommerce_before_cart' ); ?>
                                             <?php
 
                                         }
+                                        if(!$is_have_product){
+                                            $url = wc_get_page_permalink( 'shop' );
+                                            echo '<div class="gf-row">';
+                                            echo "There is no itme in package! please add product in package";
+                                            echo '<a href="'.$url.'" class="pd-button" style="margin-left: 2%;margin-top: 0%;">Go to Shop</a>';
+                                            echo '</div>';
+                                        }
                                     
                                     ?>
+                                    Gift Wrap
                                     <div class="cb-row">
                                         
-                                        <div class="cb-thumb">
-                                            <!-- <img class="pdthumb" src="Valentines-hearts-box-mock.png"> -->
+                                        <div class="cb-thumb">    
+                                           <img src="<?php echo get_the_post_thumbnail_url($gift_wrap); ?>" class="pdthumb">
                                         </div>
                                         
                                         <div id="demo-giftwrap" class="dd-container" style="width: 260px;">
-                                            <select class='giftwrap-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gw = '<?php echo $package_product; ?>' data-old-ckey= '<?php echo $gb_cart_item_key; ?>' >  
+                                            <select class='giftwrap-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gw = '<?php echo $gift_wrap; ?>' data-old-ckey= '<?php echo $gw_cart_item_key; ?>' >  
                                                 <?php 
+                                                
                                                     foreach ($giftWraps as $wrap ) {
-                                                        
-                                                        echo '<option value="'.$wrap.'" '.selected( $package_product, $wrap, false).' data-imagesrc="'.get_the_post_thumbnail_url($wrap).'" > '.get_the_title( $wrap ).'</option>';
+                                                        $_product = wc_get_product( $wrap );
+                                                        $price = ( $_product->get_price() != 0)? get_woocommerce_currency_symbol().''.$_product->get_price() : 'Free';
+                                                        echo '<option value="'.$wrap.'" '.selected( $gift_wrap, $wrap, false).' data-imagesrc="'.get_the_post_thumbnail_url($wrap).'" data-description="'.$price.'" > '.get_the_title( $wrap ).'</option>';
                                                     }
 
                                                 ?>
@@ -652,12 +649,39 @@ do_action( 'woocommerce_before_cart' ); ?>
                                         </div>
                                         
                                         <div class="cb-item-price">
-                                            <h2 class="item-cb-free"> FREE</h2>
-                                            <h2 class="item-cb" style="display:none;"> $<span>150 </span> </h2>
+                                            <?php 
+                                                
+                                                $_product = wc_get_product( $gift_wrap ); 
+                                                if($_product){
+                                                    echo( $_product->get_price() != '0' )?  '<h2 class="item-cb"> $<span>'.$_product->get_price().'</span> </h2>' : '<h2 class="item-cb-free"> FREE</h2>';
+                                                }
+                                            
+                                            ?>
                                         </div>
                                         
                                                 
                                     </div>
+
+                                    Simple Greeting Note
+                                    <div class="cb-row">
+                                        
+                                        <div class="cb-thumb">    
+                                        Simple Greeting Note
+                                           <!-- <img src="<?php echo get_the_post_thumbnail_url($gift_wrap); ?>" class="pdthumb"> -->
+                                        </div>
+                                        
+                                        <div id="demo-giftwrap" class="dd-container" style="width: 260px;">
+                                            <textarea class="package-note" rows="4" cols="50" ></textarea>
+                                            
+                                        </div>
+                                        
+                                        <div class="cb-item-price">
+                                            <?php echo '<h2 class="item-cb-free"> FREE</h2>'; ?>
+                                        </div>
+                                        
+                                                
+                                    </div>
+
                                     <div class="pack-rb">
                                         <button class="delete-package pd-button" data-package='<?php echo $package; ?>' data-gb-id = '<?php echo $package_product; ?>' data-gb-ckey= '<?php echo $gb_cart_item_key; ?>'  >Delete package</button>
                                     </div>
@@ -688,7 +712,60 @@ do_action( 'woocommerce_before_cart' ); ?>
 
                     <?php do_action( 'woocommerce_after_cart_table' ); ?>
                 </form>
-                
+
+
+                <div class="form-popup-bg">
+                    <div class="form-container">
+                        <button id="btnCloseForm" class="close-button">X</button>
+                            <p>Recipient Delivery Details</p>
+                            <form id="wcgb-user-address">
+                                <div class="form-group">
+                                    <label for="">Name</label>
+                                    <input type="text" class="form-control" name="delivery-package" value="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Company Name</label>
+                                    <input class="form-control" type="text">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">E-Mail Address</label>
+                                    <input class="form-control" type="text">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Phone Number</label>
+                                    <input class="form-control" type="text">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Address</label>
+                                    <input class="form-control" type="text">
+                                </div>
+                                </br>
+                                <button id="submit-address"class="ar-button">Submit</button>
+                                <input type="hidden" name="package" id="package-id" value="">
+                            </form>
+                    </div>
+                </div>
+                <script>
+                        /* Contact Form Interactions */
+                        jQuery('.btnOpenForm').on('click', function(event) {
+                            event.preventDefault();
+                            
+                            jQuery('.form-popup-bg').addClass('is-visible');
+                            var package = jQuery(this).data('package');
+                            jQuery('.form-popup-bg #package-id').val(package);
+                        });
+                    
+                        //close popup when clicking x or off popup
+                        jQuery('.form-popup-bg').on('click', function(event) {
+                            if (jQuery(event.target).is('.form-popup-bg') || jQuery(event.target).is('#btnCloseForm')) {
+                                event.preventDefault();
+                                jQuery(this).removeClass('is-visible');
+                            }
+                        });
+
+                        jQuery('#submit-address')
+                </script>
+
             </div>
         </div>
     </div>
@@ -751,24 +828,8 @@ do_action( 'woocommerce_before_cart' ); ?>
             });
             
         
-        });
+        });    
 
-    /* Contact Form Interactions */
-        jQuery('#btnOpenForm').on('click', function(event) {
-            event.preventDefault();
-            jQuery('.form-popup-bg').addClass('is-visible');
-        });
-    
-        //close popup when clicking x or off popup
-        jQuery('.form-popup-bg').on('click', function(event) {
-            if (jQuery(event.target).is('.form-popup-bg') || jQuery(event.target).is('#btnCloseForm')) {
-                 event.preventDefault();
-                jQuery(this).removeClass('is-visible');
-            }
-        });
-    
-    
-    
     });
 
 </script>

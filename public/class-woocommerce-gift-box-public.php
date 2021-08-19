@@ -103,7 +103,7 @@ class Woocommerce_Gift_Box_Public {
 	}
 	public function wcgb_create_shortcode(){
 		add_shortcode( 'gift_box_products', array($this, 'gift_box_short_code_callback') );
-		add_shortcode( 'gift_wrap_products', array($this, 'gift_wrap_short_code_callback') );
+		add_shortcode( 'greeting_cards', array($this, 'greeting_cards_short_code_callback') );
 	}
 
 	function gift_box_short_code_callback(){ 
@@ -146,7 +146,7 @@ class Woocommerce_Gift_Box_Public {
 	}
 
 
-	function gift_wrap_short_code_callback(){ 
+	function greeting_cards_short_code_callback(){ 
 		ob_start();
 		?>
 
@@ -162,7 +162,7 @@ class Woocommerce_Gift_Box_Public {
 					'meta_key'       	=> '_price',
 					'meta_query' => array(
 									array(
-										'key'     => 'is_gift_wrap',
+										'key'     => 'is_greeting_card',
 										'value'   => 'true'
 									),
 								),
@@ -188,7 +188,34 @@ class Woocommerce_Gift_Box_Public {
 
 
 
+	public function get_lowest_cost_product($key){
+		
+		$value = 0;
+		$args = array(
+			'post_type' 		=> 'product',
+			'posts_per_page' 	=> 1,
+			'order'				=> 'asc',
+			'orderby'        	=> 'meta_value_num',
+			'meta_key'       	=> '_price',
+			'meta_query' => array(
+							array(
+								'key'     => $key,
+								'value'   => 'true'
+							),
+						),
+			);
+		$loop = new WP_Query( $args );
+		if ( $loop->have_posts() ) {
+			while ( $loop->have_posts() ) : $loop->the_post();
+				
+				$value = get_the_ID(  );
+				
+			endwhile;
+		} 
+		wp_reset_postdata();
 
+		return $value;
+	}
 
 
 	public function wcgb_hide_box_and_wrap($q){
@@ -243,6 +270,7 @@ class Woocommerce_Gift_Box_Public {
 	public function wcgb_add_item_data($cart_item_data,$product_id, $variation_id){
 
 
+		var_dump($_POST);
 		$current_package = WC()->session->get('wcgb_current_package');
 		$packages = WC()->session->get('wcgb_packages' );
 	
@@ -260,8 +288,10 @@ class Woocommerce_Gift_Box_Public {
 		
 		$wcgb_packages = WC()->session->get('wcgb_packages');
 		$current_package = WC()->session->get('wcgb_current_package');
-		
+		$wcgb_wraps = WC()->session->get('wcgb_wraps');
+
 		$is_gift_box = get_post_meta( $product_id, 'is_gift_box', true );
+		$is_gift_wrap = get_post_meta( $product_id, 'is_gift_wrap', true );
 			
 		if($is_gift_box == true){
 			
@@ -272,10 +302,11 @@ class Woocommerce_Gift_Box_Public {
 				WC()->session->set('wcgb_packages', $wcgb_packages );
 
 			}elseif(  !$wcgb_packages && !$current_package ){
-	
+				$wrap_id = $this->get_lowest_cost_product('is_gift_wrap');
+				
 				WC()->session->set('wcgb_packages', [ 'package1' => ['product_id' => $product_id,'cart_item_key' => $cart_item_key ]] );
 				WC()->session->set('wcgb_current_package', 'package1' );
-
+				WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('package' => 'package1' ) );
 			}else{
 
 				$currentPackageCount = count($wcgb_packages ) + 1;
@@ -288,6 +319,26 @@ class Woocommerce_Gift_Box_Public {
 
 		}
 
+		if($is_gift_wrap == true){
+
+			if(!$wcgb_wraps){
+				WC()->session->set( 'wcgb_wraps', [ 'package1' =>  ['product_id' => $product_id, 'cart_item_key' => $cart_item_key] ]);
+			
+			}else if($cart_item_data['update_package']){
+				
+				$package = $cart_item_data['package'];
+				$wcgb_wraps[$package] = ['product_id' => $product_id,'cart_item_key' => $cart_item_key ];
+				WC()->session->set('wcgb_wraps', $wcgb_wraps );
+			}else{
+
+				// $currentPackageCount = count($wcgb_packages ) + 1;
+                // $current_package = 'package'.$currentPackageCount;
+                // $wcgb_packages = array_merge($wcgb_wraps, [  $current_package => ['product_id' => $product_id,'cart_item_key' => $cart_item_key ] ]);
+				// WC()->session->set('wcgb_packages', $wcgb_packages );
+				// WC()->session->set('wcgb_current_package', $current_package );
+				
+			}
+		}
 
 	}
 	
@@ -367,16 +418,16 @@ class Woocommerce_Gift_Box_Public {
 		if( $package && $new_gw_id  ){
 
 		
-			$wcgb_packages = WC()->session->get('wcgb_wraps');
+			//$wcgb_packages = WC()->session->get('wcgb_wraps');
 
 			//if()
 			//WC()->session->set('wcgb_wraps',  );
 			
-			//WC()->cart->add_to_cart( $new_gb_id ,1,  0,array(), array('update_package' => true , 'package' => $package  ) );
+			WC()->cart->add_to_cart( $new_gw_id ,1,  0,array(), array('update_package' => true , 'package' => $package  ) );
 			
 			
-			if($old_gb_id != '' && $old_gb_id != 'new')
-				$removed = WC()->cart->remove_cart_item( $old_gb_ckey );
+			if($old_gw_id != '' && $old_gw_id != 'new')
+				$removed = WC()->cart->remove_cart_item( $old_gw_ckey );
 			
 
 			wp_send_json_success();

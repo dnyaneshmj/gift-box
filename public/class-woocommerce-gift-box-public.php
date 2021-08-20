@@ -269,8 +269,6 @@ class Woocommerce_Gift_Box_Public {
 	
 	public function wcgb_add_item_data($cart_item_data,$product_id, $variation_id){
 
-
-		var_dump($_POST);
 		$current_package = WC()->session->get('wcgb_current_package');
 		$packages = WC()->session->get('wcgb_packages' );
 	
@@ -474,8 +472,9 @@ class Woocommerce_Gift_Box_Public {
 		$formData = $_POST['formData'];
 		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
 		$gb_key = isset($formData['gb_key']) && $formData['gb_key'] != '' ? $formData['gb_key'] : '' ;
+		$gw_key = isset($formData['gw_key']) && $formData['gw_key'] != '' ? $formData['gw_key'] : '' ;
 		$products = isset($formData['products']) && $formData['products']  ? $formData['products'] : [] ;
-
+		
 		//$old_gb_ckey = isset($formData['old_gb_ckey']) && $formData['old_gb_ckey'] != '' ? $formData['old_gb_ckey'] : '' ;
 	
 
@@ -483,19 +482,33 @@ class Woocommerce_Gift_Box_Public {
 
 			$wcgb_packages = WC()->session->get('wcgb_packages');
 			$current_package = WC()->session->get('wcgb_current_package');
+			$wcgb_notes = WC()->session->get('wcgb_notes');
+			$wcgb_address = WC()->session->get('wcgb_address');
+			$wcgb_wraps = WC()->session->get('wcgb_wraps');
 			
+
 			if($wcgb_packages[$package]){
 				
 				$removed = WC()->cart->remove_cart_item( $gb_key );
+				$removed = WC()->cart->remove_cart_item( $gw_key );
+				
 
 				unset($wcgb_packages[$package]);
-				
 				WC()->session->set('wcgb_packages', $wcgb_packages );
 
 				end($wcgb_packages);
 				$key = key($wcgb_packages);
 				WC()->session->set('wcgb_current_package', $current_package );
+
+				unset($wcgb_notes[$package]);
+				WC()->session->set('wcgb_notes', $wcgb_notes );
 				
+				unset($wcgb_address[$package]);
+				WC()->session->set('wcgb_address', $wcgb_address );
+
+				unset($wcgb_wraps[$package]);
+				WC()->session->set('wcgb_wraps', $wcgb_wraps );
+
 			}			
 			
 			if(!empty($products)){
@@ -513,6 +526,83 @@ class Woocommerce_Gift_Box_Public {
 
 	}
 
+
+	public function wcgb_add_package_address(){
+		
+		$formData = $_POST['formData'];
+		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
+		$full_name = isset($formData['full_name']) && $formData['full_name'] != '' ? $formData['full_name'] : '' ;
+		$comp_name = isset($formData['comp_name']) && $formData['comp_name']  ? $formData['comp_name'] : [] ;
+		$email = isset($formData['email']) && $formData['email'] != '' ? $formData['email'] : '' ;
+		$phone = isset($formData['phone']) && $formData['phone'] != '' ? $formData['phone'] : '' ;
+		$address = isset($formData['address']) && $formData['address']  ? $formData['address'] : [] ;
+
+		if( $package ){
+
+			
+			$wcgb_address = WC()->session->get('wcgb_address');
+			if(!empty($wcgb_address)){
+				$wcgb_address = array_merge($wcgb_address, [  $package => ['full_name' => $full_name,'comp_name' => $comp_name,'email' => $email,'phone' => $phone,'address' => $address ] ]);
+			}else{
+				$wcgb_address[$package] = ['full_name' => $full_name,'comp_name' => $comp_name,'email' => $email,'phone' => $phone,'address' => $address ];
+			}
+			
+			
+			WC()->session->set('wcgb_address', $wcgb_address );
+		
+			wp_send_json_success();
+            wp_die();
+
+		}
+
+	}
+
+	public function wcgb_get_package_address(){
+		
+		$formData = $_POST['formData'];
+		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
+
+		if( $package ){
+			
+			$wcgb_address = WC()->session->get('wcgb_address');
+			if(isset( $wcgb_address[$package] ) ){
+				wp_send_json_success($wcgb_address[$package]);
+				wp_die();
+			}
+			
+
+		}
+
+	}
+
+
+	public function wcgb_save_package_note(){
+		
+		$formData = $_POST['formData'];
+		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
+		$note = isset($formData['note']) && $formData['note'] != '' ? $formData['note'] : '' ;
+		
+		if( $package ){
+
+			
+			$wcgb_notes = WC()->session->get('wcgb_notes');
+			// if(!empty($wcgb_notes)){
+			// 	$wcgb_notes = array_merge($wcgb_notes, [  $package => $note ]);
+			// }else{
+				$wcgb_notes[$package] = $note;
+			//}
+		
+			
+			WC()->session->set('wcgb_notes', $wcgb_notes );
+		
+			wp_send_json_success();
+            wp_die();
+
+		}
+
+	}
+
+	
 	public function prevent_admin_access() {       
 
 		if ( is_admin() && !defined('DOING_AJAX') && ( 

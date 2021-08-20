@@ -196,6 +196,16 @@ class Woocommerce_Gift_Box {
 
 		$this->loader->add_action( 'wp_ajax_wcgb_remove_pkg_from_cart',  $plugin_public, 'wcgb_remove_packages_from_cart' );
 		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_remove_pkg_from_cart',  $plugin_public, 'wcgb_remove_packages_from_cart' );
+
+		$this->loader->add_action( 'wp_ajax_wcgb_add_address_to_package',  $plugin_public, 'wcgb_add_package_address' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_add_address_to_package',  $plugin_public, 'wcgb_add_package_address' );
+		
+		$this->loader->add_action( 'wp_ajax_wcgb_get_address_of_package',  $plugin_public, 'wcgb_get_package_address' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_get_address_of_package',  $plugin_public, 'wcgb_get_package_address' );
+		
+		$this->loader->add_action( 'wp_ajax_wcgb_save_note_of_package',  $plugin_public, 'wcgb_save_package_note' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_save_note_of_package',  $plugin_public, 'wcgb_save_package_note' );
+		
 	}
 
 	/**

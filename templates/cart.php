@@ -424,7 +424,16 @@ do_action( 'woocommerce_before_cart' ); ?>
                                         </div>
         
                                         <div class="cb-pack-rec">
-                                            <h1 class="btnOpenForm" data-package="<?php echo $package; ?>">Add Receipient</h1>
+                                            <?php 
+                                                $label = 'Add Receipient';
+                                                $wcgb_address = WC()->session->get('wcgb_address');
+                                                if(isset( $wcgb_address[$package] ) ){
+                                                    $address = $wcgb_address[$package];
+                                                    $label =  $address['full_name'];
+                                                }
+                                            
+                                            ?>
+                                            <h1 class="btnOpenForm" data-package="<?php echo $package; ?>"><?php echo $label ?></h1>
 
                                         </div>
                                     </div>
@@ -615,6 +624,7 @@ do_action( 'woocommerce_before_cart' ); ?>
                                         </div>
                                         
                                         <div id="demo-giftwrap" class="dd-container" style="width: 260px;">
+                                            <input type="hidden" id="gw-ckey" value= '<?php echo $gw_cart_item_key; ?>'>
                                             <select class='giftwrap-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gw = '<?php echo $gift_wrap; ?>' data-old-ckey= '<?php echo $gw_cart_item_key; ?>' >  
                                                 <?php 
                                                 
@@ -671,12 +681,24 @@ do_action( 'woocommerce_before_cart' ); ?>
                                         </div>
                                         
                                         <div id="demo-giftwrap" class="dd-container" style="width: 260px;">
-                                            <textarea class="package-note" rows="4" cols="50" ></textarea>
+
+                                        <?php 
+                                                $note = '';
+                                                $wcgb_notes = WC()->session->get('wcgb_notes');
+                                            
+                                                if(isset( $wcgb_notes[$package] ) ){
+                                                    $note = $wcgb_notes[$package];
+                                                
+                                                }
+                                            
+                                            ?>
+                                            <textarea class="package-note" rows="4" cols="50" data-package='<?php echo $package; ?>' ><?php echo $note ?></textarea>
                                             
                                         </div>
                                         
                                         <div class="cb-item-price">
-                                            <?php echo '<h2 class="item-cb-free"> FREE</h2>'; ?>
+                                            <?php //echo '<h2 class="item-cb-free"> FREE</h2>'; ?>
+                                            <button class="pd-button save-note" data-package='<?php echo $package; ?>'>Save</button>
                                         </div>
                                         
                                                 
@@ -718,26 +740,26 @@ do_action( 'woocommerce_before_cart' ); ?>
                     <div class="form-container">
                         <button id="btnCloseForm" class="close-button">X</button>
                             <p>Recipient Delivery Details</p>
-                            <form id="wcgb-user-address">
+                            <form id="wcgb-user-package-address">
                                 <div class="form-group">
                                     <label for="">Name</label>
-                                    <input type="text" class="form-control" name="delivery-package" value="">
+                                    <input id="package-fname" type="text" class="form-control"  value="">
                                 </div>
                                 <div class="form-group">
                                     <label for="">Company Name</label>
-                                    <input class="form-control" type="text">
+                                    <input id="package-cname"  class="form-control" type="text">
                                 </div>
                                 <div class="form-group">
                                     <label for="">E-Mail Address</label>
-                                    <input class="form-control" type="text">
+                                    <input id="package-email" class="form-control"  type="email">
                                 </div>
                                 <div class="form-group">
                                     <label for="">Phone Number</label>
-                                    <input class="form-control" type="text">
+                                    <input id="package-phone" class="form-control" type="tel" >
                                 </div>
                                 <div class="form-group">
                                     <label for="">Address</label>
-                                    <input class="form-control" type="text">
+                                    <input id="package-address" class="form-control" type="text" >
                                 </div>
                                 </br>
                                 <button id="submit-address"class="ar-button">Submit</button>
@@ -746,13 +768,113 @@ do_action( 'woocommerce_before_cart' ); ?>
                     </div>
                 </div>
                 <script>
-                        /* Contact Form Interactions */
+
+                    jQuery(document).ready(function() {
+
+                       
+                        jQuery('.save-note').on('click', function(event) {
+                            event.preventDefault();
+
+                            jQuery('html, body, .save-note').css("cursor", "wait"); 
+                            
+                            var package = jQuery(this).data('package');
+
+                            var note = jQuery('textarea[data-package="'+package+'"]').val();
+                           
+                            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+                    
+                            var formData = {
+                                package: package,
+                                note: note
+                            };
+                
+                            jQuery.ajax({
+                                url: ajaxurl,
+                                type: 'post',
+                                data: {
+                                    formData: formData,
+                                    dataType: "json",
+                                    encode: true,
+                                    action: 'wcgb_save_note_of_package'
+                                },
+                                error: function(response) {
+                                    console.log(response);
+                                },
+                                success: function(response) {
+                                    
+                                    if (response.success) {
+  
+                                    } else {
+                                       
+                                    }
+                                    jQuery('html, body').css("cursor", "default");   
+                                    jQuery('.save-note').removeAttr("style")
+                                    
+                                   
+                                }
+                                
+                            });
+                
+                            
+                            
+                      
+                        });
+
                         jQuery('.btnOpenForm').on('click', function(event) {
                             event.preventDefault();
-                            
-                            jQuery('.form-popup-bg').addClass('is-visible');
+
+                            jQuery('html, body, .btnOpenForm').css("cursor", "wait"); 
+                          
+
                             var package = jQuery(this).data('package');
                             jQuery('.form-popup-bg #package-id').val(package);
+                            
+                            
+
+                            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+                    
+                            var formData = {
+                                package: package,
+                            };
+                
+                            jQuery.ajax({
+                                url: ajaxurl,
+                                type: 'post',
+                                data: {
+                                    formData: formData,
+                                    dataType: "json",
+                                    encode: true,
+                                    action: 'wcgb_get_address_of_package'
+                                },
+                                error: function(response) {
+                                    console.log(response);
+                                },
+                                success: function(response) {
+                                    
+                                    if (response.success) {
+                                        
+                                        jQuery('#package-fname').val(response.data.full_name);
+                                        jQuery('#package-cname').val(response.data.comp_name);
+                                        jQuery('#package-email').val(response.data.email);
+                                        jQuery('#package-phone').val(response.data.phone);
+                                        jQuery('#package-address').val(response.data.address);
+
+
+                                        jQuery('.form-popup-bg').addClass('is-visible');
+                                    } else {
+                                        jQuery('.form-popup-bg').addClass('is-visible');
+                                    }
+                                    jQuery('html, body').css("cursor", "default");   
+                                    jQuery('.btnOpenForm').removeAttr("style")
+                                    
+                                   
+                                }
+                                
+                            });
+                
+                            
+                            
+                      
                         });
                     
                         //close popup when clicking x or off popup
@@ -763,7 +885,60 @@ do_action( 'woocommerce_before_cart' ); ?>
                             }
                         });
 
-                        jQuery('#submit-address')
+                        jQuery('#wcgb-user-package-address').submit(function (e) {
+                            e.preventDefault();
+                            
+                            jQuery('html, body, #wcgb-user-package-address').css("cursor", "wait"); 
+
+                            var full_name = jQuery('#package-fname').val();
+                            var comp_name = jQuery('#package-cname').val();
+                            var email = jQuery('#package-email').val();
+                            var phone = jQuery('#package-phone').val();
+                            var address = jQuery('#package-address').val();
+                            var package = jQuery('.form-popup-bg #package-id').val();
+
+                            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+                    
+                            var formData = {
+                                package: package,
+                                full_name: full_name,
+                                comp_name: comp_name,
+                                email: email,
+                                phone: phone,
+                                address: address,
+                            };
+                
+                            jQuery.ajax({
+                                url: ajaxurl,
+                                type: 'post',
+                                data: {
+                                    formData: formData,
+                                    // security: check_ref,
+                                    dataType: "json",
+                                    encode: true,
+                                    action: 'wcgb_add_address_to_package'
+                                },
+                                error: function(response) {
+                                    console.log(response);
+                                },
+                                success: function(response) {
+                                    console.log(response);
+
+                                    if (response.success) {
+                                        jQuery('.btnOpenForm[data-package="'+package+'"]').html(full_name);
+                                        jQuery('.form-popup-bg').removeClass('is-visible');
+                                    } else {
+                                        
+                                    }
+                                    jQuery('html, body').css("cursor", "default");   
+                                    jQuery('#wcgb-user-package-address').removeAttr("style")
+                                }
+                            });
+
+                            
+                            
+                        });
+                    });                        
                 </script>
 
             </div>
@@ -787,19 +962,22 @@ do_action( 'woocommerce_before_cart' ); ?>
             var package = jQuery(this).data('package');
             var gb_key = jQuery(this).data('gb-ckey');
             var gb_id = jQuery(this).data('gb-id');
+            var gw_id = jQuery('#gw-ckey').val();
+
+           
 
             var products = [];
             jQuery(".delete-"+package).map(function() {
                 products.push(jQuery(this).data('cikey'));
             }).get();
 
-            console.log(products);
 
             var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
                     
             var formData = {
                 package: package,
                 gb_key: gb_key,
+                gw_key: gw_id,
                 products: products,
             };
 

@@ -158,6 +158,9 @@ class Woocommerce_Gift_Box {
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'wcgb_gift_product_metabox' );
 		$this->loader->add_action( 'save_post', $plugin_admin, 'wcgb_gift_product_save_metabox' );
+		$this->loader->add_filter( 'woocommerce_get_settings_products', $plugin_admin, 'wcgb_gift_card_page_option', 10, 2 );
+
+
 	}
 
 	/**
@@ -205,6 +208,7 @@ class Woocommerce_Gift_Box {
 		
 		$this->loader->add_action( 'wp_ajax_wcgb_save_note_of_package',  $plugin_public, 'wcgb_save_package_note' );
 		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_save_note_of_package',  $plugin_public, 'wcgb_save_package_note' );
+		
 		
 	}
 

@@ -195,4 +195,16 @@ class Woocommerce_Gift_Box_Admin {
 	
 	
 	}
+	public function wcgb_gift_card_page_option($settings, $current_section ){
+		
+		//var_dump($settings);
+		return array_merge($settings, array( array(
+				'name'     => __( 'Greeeting Card Page ID', 'text-domain' ),
+				'id'       => 'wcgb_greeting_id',
+				'type'     => 'text',
+				'desc'     => __( 'Enter greeting card page id whixh contain shortcode [greeting_cards]', 'text-domain' ),
+			) ) );
+
+	}
+	
 }

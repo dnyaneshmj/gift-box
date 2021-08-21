@@ -226,9 +226,15 @@ class Woocommerce_Gift_Box_Public {
 		);
 		$meta_query[] = array(
 			'key' => 'is_gift_wrap',
-			'value' => 'true',
 			'compare' => 'NOT EXISTS'
 		  );
+
+		$meta_query[] = array(
+			'key' => 'is_greeting_card',
+			'compare' => 'NOT EXISTS'
+		  );
+
+		  
 		$q->set( 'meta_query', $meta_query );
 	}
 

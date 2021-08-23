@@ -17,231 +17,10 @@
 
 defined( 'ABSPATH' ) || exit;
 
-do_action( 'woocommerce_before_cart' ); ?>
-          
-    <style>
-        .pack-n {
-            font-size: 15px;
-            color: #555;
-        }
-        .cb-row {
-            display: flex;
-            flex-direction: row;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 15px 15px;
-            background-color:#fbfbfb;
-            }
-        .cb-thumb {
-            margin-right: 2%;
-            display: flex;
-        flex-direction: row;
-        }
-        .dd-select{background-color:transparent !important;}
-        .dd-selected {padding: 4px 7px !important;}
-        .dd-selected-text{margin-bottom:0px;line-height: 33px !important;}
-        .dd-option{padding: 4px 7px !important;}
-        .dd-option-text{margin-bottom:0px;line-height: 33px !important;}
-        .cb-item-detail {
-            margin-right: 16%;
-            max-width:30%;
-            width: 30%;
-            display: flex;
-        flex-direction: column;
-        justify-content: normal;
-        align-content: flex-start;
-        }
-        .item-cb-free {
-            font-size: 20px;
-        font-weight: 600;
-        color: #333;
-        }
-        .item-cb {
-            font-size: 20px;
-        font-weight: 600;
-        color: #333;
-        }
-        .cb-item-price {
-            margin-left: 49%;
-        }
-
-        .pdthumb {width:100px;}
-        .gf-row {
-            display: flex;
-            flex-direction: row;
-            justify-content: flex-start;
-            align-items: center;
-            padding: 15px 15px;
-            }
-        .gf-row:nth-child(2n) {background-color: #fff;}
-        .gf-row:nth-child(2n+1) {background-color: #f0f8ff;}
-
-        .gf-thumb {
-            margin-right: 2%;
-        }
-        .gf-item-detail {
-            margin-right: 16%;
-            max-width:30%;
-            width: 30%;
-            display: flex;
-        flex-direction: column;
-        justify-content: normal;
-        align-content: flex-start;
-        }
-        .gf-item-count {
-            margin-right: 10%;
-        }
-        .gf-item-price {
-            margin-right: 10%;
-        }
-
-        .quantity-minus, .quantity-plus {font-size: 32px;
-        line-height: 25px;
-        display: inline-block;
-        width: 32px;
-        height: 32px;
-        background: #f1eeeb;
-        text-align: center;vertical-align: middle;}
-
-        .item-title {
-            font-size: 18px;
-            color: #333;
-        }
-        .item-sku {
-            font-size: 13px;
-            color: #333; margin-bottom: 0;
-        }
-        .gf-row-delete .fa-trash{padding: 5px 0;
-        font-size: 16px;
-        color: red;}
-        .package-gb-cont{width: 85%;margin: 0 auto; border: 1px dashed #ddd; padding: 10px 10px;}
-        .item-price {
-            font-size: 20px;
-        font-weight: 600;
-        color: #333;
-        }
-        .cb-pack-con {
-            display: flex;
-            flex-direction: row;
-            justify-content: flex-start;
-            align-items: center;
-        }
-        .cb-pack-rec {
-            margin-left: 10%; cursor: pointer;
-        }
-        .btnOpenForm {
-            font-size: 15px;
-            padding: 3px 3px;
-            border: 1px dashed #bbb;
-            width: max-content;
-        }
-        .ar-button {
-            background-color: #000;
-            border: none;
-            padding: 9px 25px;
-            border-radius: 2px;
-            font-size: 13px;
-            color: #fff;
-            text-transform: uppercase;
-            margin-top: 30px;
-        }
-        .anr-button {
-            background-color: #000;
-            border: none;
-            padding: 9px 25px;
-            border-radius: 2px;
-            font-size: 13px;
-            color: #fff;
-            text-transform: uppercase;
-            margin-top: 30px;
-            float: right;
-            margin-right: 8%;
-        }
-        .pd-button {
-            background-color: #000;
-            border: none;
-            padding: 9px 25px;
-            border-radius: 2px;
-            font-size: 13px;
-            color: #fff;
-            text-transform: uppercase;
-            margin-top: 30px;
-        }
-        .form-group {
-            margin-bottom: 1rem;
-            width: 48%;
-            float: left;
-            margin: 0 12px 0 0px;
-        }
-        .form-popup-bg {
-        position:absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        display: flex;
-        flex-direction: column;
-        align-content: center;
-        justify-content: center;
-        }
-        .form-popup-bg {
-        position: fixed;
-        left: 0;
-        top: 0;
-        height: 100%;
-        width: 100%;
-        background-color: rgba(94, 110, 141, 0.9);
-        opacity: 0;
-        visibility: hidden;
-        -webkit-transition: opacity 0.3s 0s, visibility 0s 0.3s;
-        -moz-transition: opacity 0.3s 0s, visibility 0s 0.3s;
-        transition: opacity 0.3s 0s, visibility 0s 0.3s;
-        overflow-y: auto;
-        z-index: 10000;
-        }
-        .form-popup-bg.is-visible {
-        opacity: 1;
-        visibility: visible;
-        -webkit-transition: opacity 0.3s 0s, visibility 0s 0s;
-        -moz-transition: opacity 0.3s 0s, visibility 0s 0s;
-        transition: opacity 0.3s 0s, visibility 0s 0s;
-        }
-        .form-container {
-            background-color:#bfbfbf;
-            border-radius: 10px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23);
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            position:relative;
-        padding: 40px;
-        color: #fff;
-        }
-        .close-button {
-        background:none;
-        color: #fff;
-        width: 40px;
-        height: 40px;
-        position: absolute;
-        top: 0;
-        right: 0;
-        border: solid 1px #fff;
-        }
-
-        .form-popup-bg:before{
-            content:'';
-            background-color: #fff;
-            opacity: .25;
-            position:absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-        }
-    </style>     
+do_action( 'woocommerce_before_cart' ); 
+?>
+        
+    <style>    </style>     
     
     <script>
            function changeGiftBox( package, new_gb_id, old_gb_id,old_gb_ckey ) {
@@ -445,16 +224,7 @@ do_action( 'woocommerce_before_cart' ); ?>
                                         </div>
 
                                         <div id="demo-htmlselect" class="dd-container" style="width: 260px;">
-                                                <!-- <div class="dd-select" style="width: 260px; background: rgb(238, 238, 238);">
-                                                    <input class="dd-selected-value" type="hidden" value="1">
-                                                    <a class="dd-selected">
-                                                        <img class="dd-selected-image" src="<?php echo get_the_post_thumbnail_url($package_product); ?>">
-                                                        <label class="dd-selected-text" style="line-height: 51px;"><?php echo get_the_title( $package_product ); ?></label>
-                                                    </a>
-                                                    <span class="dd-pointer dd-pointer-down"></span>
-                                                </div> -->
-
-                                                <select class='giftbox-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gb = '<?php echo $package_product; ?>' data-old-ckey= '<?php echo $gb_cart_item_key; ?>' >
+                                                 <select class='giftbox-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gb = '<?php echo $package_product; ?>' data-old-ckey= '<?php echo $gb_cart_item_key; ?>' >
                                                     <?php 
                                                         foreach ($giftBoxes as $box ) {
                                                             $_product = wc_get_product( $box );
@@ -489,8 +259,6 @@ do_action( 'woocommerce_before_cart' ); ?>
 
                                         </div>
                                             
-                                       
-                                    
                                     <div class="cb-item-price">
                                         <?php 
                                             
@@ -566,17 +334,21 @@ do_action( 'woocommerce_before_cart' ); ?>
                                                         if ( $_product->is_sold_individually() ) {
                                                             $product_quantity = sprintf( '1 <input type="hidden" name="cart[%s][qty]" value="1" />', $cart_item_key );
                                                         } else {
-                                                            $product_quantity = woocommerce_quantity_input( array(
-                                                                'input_name'    => "cart[{$cart_item_key}][qty]",
-                                                                'input_value'   => $cart_item['quantity'],
-                                                                'max_value'     => $_product->get_max_purchase_quantity(),
-                                                                'min_value'     => '0',
-                                                                'product_name'  => $_product->get_name(),
-                                                            ), $_product, false );
+                                                            $product_quantity = woocommerce_quantity_input(
+                                                                array(
+                                                                    'input_name'   => "cart[{$cart_item_key}][qty]",
+                                                                    'input_value'  => $cart_item['quantity'],
+                                                                    'max_value'    => $_product->get_max_purchase_quantity(),
+                                                                    'min_value'    => '0',
+                                                                    'product_name' => $_product->get_name(),
+                                                                ),
+                                                                $_product,
+                                                                false
+                                                            );
                                                         }
 
-                                                        echo apply_filters( 'woocommerce_cart_item_quantity', $product_quantity, $cart_item_key, $cart_item );
-                                                    ?>
+                                                        echo apply_filters( 'woocommerce_cart_item_quantity', $product_quantity, $cart_item_key, $cart_item ); // PHPCS: XSS ok.
+                                                        ?>
                                                 </div>
                                                 
                                                 <div class="gf-item-price">
@@ -735,7 +507,7 @@ do_action( 'woocommerce_before_cart' ); ?>
                     <?php do_action( 'woocommerce_after_cart_table' ); ?>
                 </form>
 
-
+<!-- 
                 <div class="form-popup-bg">
                     <div class="form-container">
                         <button id="btnCloseForm" class="close-button">X</button>
@@ -766,7 +538,7 @@ do_action( 'woocommerce_before_cart' ); ?>
                                 <input type="hidden" name="package" id="package-id" value="">
                             </form>
                     </div>
-                </div>
+                </div> -->
                 <script>
 
                     jQuery(document).ready(function() {

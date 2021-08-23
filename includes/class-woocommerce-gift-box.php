@@ -159,7 +159,7 @@ class Woocommerce_Gift_Box {
 		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'wcgb_gift_product_metabox' );
 		$this->loader->add_action( 'save_post', $plugin_admin, 'wcgb_gift_product_save_metabox' );
 		$this->loader->add_filter( 'woocommerce_get_settings_products', $plugin_admin, 'wcgb_gift_card_page_option', 10, 2 );
-
+		$this->loader->add_action( 'woocommerce_after_order_itemmeta', $plugin_admin,  'display_admin_order_item_custom_button', 10, 3 );
 
 	}
 
@@ -176,9 +176,10 @@ class Woocommerce_Gift_Box {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		
 		$this->loader->add_action( 'init', $plugin_public, 'wcgb_create_shortcode' );
 
-		$this->loader->add_action('init', $plugin_public, 'prevent_admin_access');
+		//$this->loader->add_action('init', $plugin_public, 'prevent_admin_access');
 
 		$this->loader->add_action( 'woocommerce_product_query', $plugin_public, 'wcgb_hide_box_and_wrap' );
 		
@@ -208,6 +209,13 @@ class Woocommerce_Gift_Box {
 		
 		$this->loader->add_action( 'wp_ajax_wcgb_save_note_of_package',  $plugin_public, 'wcgb_save_package_note' );
 		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_save_note_of_package',  $plugin_public, 'wcgb_save_package_note' );
+
+		$this->loader->add_action( 'wp_footer',  $plugin_public, 'wcgb_greeting_card_option' );
+
+		$this->loader->add_action( 'woocommerce_checkout_create_order_line_item',  $plugin_public, 'wcgb_store_address_to_item', 10, 4 );
+		
+		$this->loader->add_action( 'woocommerce_thankyou',  $plugin_public, 'wcgb_reset_session');
+		
 		
 		
 	}

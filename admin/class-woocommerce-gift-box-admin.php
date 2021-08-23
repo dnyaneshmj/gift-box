@@ -206,5 +206,62 @@ class Woocommerce_Gift_Box_Admin {
 			) ) );
 
 	}
+
+	public function display_admin_order_item_custom_button($item_id, $item, $product ){
+		
+		if($product){
+			$product_id = $product->get_id();
+			$is_gift_box = get_post_meta( $product_id, 'is_gift_box', true );
+			if($is_gift_box){ 
+				$address = $item->get_meta('address');
+				echo "Address for ".$item->get_meta('package');
+			?>
+
+				<div class="view">
+					<table cellspacing="0" class="display_meta">
+								<tbody>
+									<tr>
+										<th>Full Name:</th>
+										<td><p><?php echo $address['full_name']?></p></td>
+									</tr>
+									<tr>
+										<th>Comapny Name:</th>
+										<td><p><?php echo $address['comp_name']?></p></td>
+									</tr>
+									<tr>
+										<th>Email:</th>
+										<td><p><?php echo $address['email']?></p></td>
+									</tr>
+									<tr>
+										<th>Phone:</th>
+										<td><p><?php echo $address['phone']?></p></td>
+									</tr>
+									<tr>
+										<th>Address:</th>
+										<td><p><?php echo $address['address']?></p></td>
+									</tr>
+									<!-- <tr>
+										<th>Simple Greeting Note:</th>
+										<td><p><?php echo $item->get_meta('note')?></p></td>
+									</tr> -->
+								</tbody>
+					</table>
+				</div>
+
+			<?php
+				
+				
+				
+				// echo "<br> : ".$address['full_name'];
+				// echo "<br> : ".$address['comp_name'];
+				// echo "<br> Email: ".$address['email'];
+				// echo "<br> Phone: ".$address['phone'];
+				// echo "<br> Address: ".$address['address'];
+				//{ ["full_name"]=> string(16) "Dnyanesh Mahajan" ["comp_name"]=> string(4) "WebD" ["email"]=> string(27) "dnyaneshmahajan12@gmail.com" 
+					//"phone"]=> string(11) "08087839448" ["address"]=> string(41) "Sant krupa, Main Road, Unchgaon, Kolhapur" }
+			}
+
+		}
+	}
 	
 }

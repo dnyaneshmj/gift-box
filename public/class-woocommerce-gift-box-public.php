@@ -608,17 +608,104 @@ class Woocommerce_Gift_Box_Public {
 
 	}
 
-	
-	public function prevent_admin_access() {       
+	public function wcgb_greeting_card_option(){
+		?>
 
-		if ( is_admin() && !defined('DOING_AJAX') && ( 
-			current_user_can('usercrp') || current_user_can('userpcp') ||  
-			current_user_can('subscriber') || current_user_can('contributor') || 
-			current_user_can('editor'))) {
-			  session_destroy();
-			  wp_logout();
-			  wp_redirect( home_url() );
-			 exit;
-		}
+				<div class="form-popup-bg">
+                    <div class="form-container">
+                        <button id="btnCloseForm" class="close-button">X</button>
+                            <p>Recipient Delivery Details</p>
+                            <form id="wcgb-user-package-address">
+                                <div class="form-group">
+                                    <label for="">Name</label>
+                                    <input id="package-fname" type="text" class="form-control"  value="">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Company Name</label>
+                                    <input id="package-cname"  class="form-control" type="text">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">E-Mail Address</label>
+                                    <input id="package-email" class="form-control"  type="email">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Phone Number</label>
+                                    <input id="package-phone" class="form-control" type="tel" >
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Address</label>
+                                    <input id="package-address" class="form-control" type="text" >
+                                </div>
+                                </br>
+                                <button id="submit-address"class="ar-button">Submit</button>
+                                <input type="hidden" name="package" id="package-id" value="">
+                            </form>
+                    </div>
+                </div>
+
+			  <div id="wcgb-checkout-modal" class="modal" style="display:none">
+					<!-- Modal content -->
+					<div class="modal-content" style="text-align:center">
+						<span class="close">&times;</span>
+						
+						Are you sending this as a gift?
+						If it is, would you like to add a card?
+						<div></div>
+						<?php  if(get_option( 'wcgb_greeting_id')){ ?>
+							<a href="<?php echo esc_url(get_permalink( get_option( 'wcgb_greeting_id') )); ?>" class="button" > Yes, add card! </a>
+						<?php } ?>
+							<a href="<?php echo esc_url(wc_get_cart_url()); ?>" class="button" > Go To Cart </a>
+
+								
+					</div>
+
+				</div>
+
+		<?php
 	}
+	// public function prevent_admin_access() {       
+
+	// 	if ( is_admin() && !defined('DOING_AJAX') && ( 
+	// 		current_user_can('usercrp') || current_user_can('userpcp') ||  
+	// 		current_user_can('subscriber') || current_user_can('contributor') || 
+	// 		current_user_can('editor'))) {
+	// 		  session_destroy();
+	// 		  wp_logout();
+	// 		  wp_redirect( home_url() );
+	// 		 exit;
+	// 	}
+	// }
+
+	public function wcgb_store_address_to_item($item, $cart_item_key, $values, $order ){
+
+		
+		$package = isset($values['item_package']) ? $values['item_package'] : '';
+		
+		if( $package )	{
+			
+			$wcgb_address = WC()->session->get('wcgb_address');
+			$wcgb_notes = WC()->session->get('wcgb_notes');
+
+			$address = $wcgb_address[$package];
+			$note = $wcgb_notes[$package];
+
+			$item->update_meta_data('address', $address);
+			$item->update_meta_data('package', $package);
+			$item->update_meta_data('note', $note);
+
+
+		}
+
+	}
+
+	public function wcgb_reset_session(){
+		WC()->session->set('wcgb_packages', '' );
+		WC()->session->set('wcgb_current_package',  '' );
+	    WC()->session->set('wcgb_wraps', '');
+		WC()->session->set('wcgb_address', '');
+		WC()->session->set('wcgb_notes', '');
+		
+	}
+
+
 }

@@ -17,11 +17,12 @@
 
 defined( 'ABSPATH' ) || exit;
 
+
 do_action( 'woocommerce_before_cart' ); 
 ?>
-        
-    <style>    </style>     
-    
+
+    <div class="wcgb-loading" style="display:none">Loading&#8230;</div>        
+
     <script>
            function changeGiftBox( package, new_gb_id, old_gb_id,old_gb_ckey ) {
                 var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
@@ -116,7 +117,6 @@ do_action( 'woocommerce_before_cart' );
                         $wcgb_wraps = WC()->session->get('wcgb_wraps');
                         //var_dump(WC()->session);
                         
-                        $showButtons = false;
 
                             if( isset($_POST['new_box']) ){
 
@@ -160,8 +160,8 @@ do_action( 'woocommerce_before_cart' );
 
                                     if( $package == $item_package && $package_product != $product_id && $is_gift_box != 'true' && $is_gift_wrap != 'true' ){
                                         
-                                        if($current_package == $package && $package_product != 'new' )
-                                                $showButtons = true;
+                                        //if($current_package == $package && $package_product != 'new' )
+                                        //$showButtons = false;
                                         
                                         $packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product,  'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
                                     //$packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product, 'item_package' => $item_package ];
@@ -174,15 +174,18 @@ do_action( 'woocommerce_before_cart' );
 
                         
 
-                            $gift_box_public = new Woocommerce_Gift_Box_Public('',1.0);
+                            $gift_box_public = new Woocommerce_Gift_Box_Public('Woocommerce_Gift_Box',1.0);
                             
                             $giftBoxes = $gift_box_public->wcgb_get_gift_box_options();
                             $giftWraps = $gift_box_public->wcgb_get_gift_wrap_options();
                             
-
+                           
+                            $package_count = count( $wcgb_packages );
+                            $current_package_count = 0;
                             foreach($wcgb_packages as $package => $data){ 
                                 //echo $package;
                                 //echo get_the_title( $package_product );
+                                $showButtons = false;
                                 $package_product = $data['product_id'];
                                 $gb_cart_item_key = $data['cart_item_key'];
                                 $gift_wrap = $gw_cart_item_key = '';
@@ -279,6 +282,8 @@ do_action( 'woocommerce_before_cart' );
                                             
                                             if($product['package'] != $package ) continue;
                                             
+                                            $showButtons = true;
+
                                             $is_have_product = true; 
 
                                             $cart_item = $product['cart_item'];
@@ -379,7 +384,9 @@ do_action( 'woocommerce_before_cart' );
                                             <?php
 
                                         }
-                                        if(!$is_have_product){
+                                        
+                                        if(!$is_have_product && ($package_count - $current_package_count ) <= 1 ){
+
                                             $url = wc_get_page_permalink( 'shop' );
                                             echo '<div class="gf-row">';
                                             echo "There is no itme in package! please add product in package";
@@ -388,6 +395,13 @@ do_action( 'woocommerce_before_cart' );
                                         }
                                     
                                     ?>
+                                    <?php  if( !$is_have_product && ($package_count - $current_package_count ) > 1 ){?>
+                                        <div class="gf-row">
+                                            There is no itme in package!
+                                            <button class="delete-package pd-button" data-package='<?php echo $package; ?>' data-gb-id = '<?php echo $package_product; ?>' data-gb-ckey= '<?php echo $gb_cart_item_key; ?>'  style="margin-left: 2%;margin-top: 0%;" >Delete package</button>
+                                        </div>
+                                    <?php } ?>
+
                                     Gift Wrap
                                     <div class="cb-row">
                                         
@@ -443,44 +457,52 @@ do_action( 'woocommerce_before_cart' );
                                         
                                                 
                                     </div>
-
-                                    Simple Greeting Note
-                                    <div class="cb-row">
-                                        
-                                        <div class="cb-thumb">    
+                                    
+                                    <?php if($is_have_product){ ?>
                                         Simple Greeting Note
-                                           <!-- <img src="<?php echo get_the_post_thumbnail_url($gift_wrap); ?>" class="pdthumb"> -->
-                                        </div>
-                                        
-                                        <div id="demo-giftwrap" class="dd-container" style="width: 260px;">
+                                        <div class="cb-row">
+                                            
+                                            <div class="cb-thumb">    
+                                            Simple Greeting Note
+                                            <!-- <img src="<?php echo get_the_post_thumbnail_url($gift_wrap); ?>" class="pdthumb"> -->
+                                            </div>
+                                            
+                                            <div id="demo-giftwrap" class="dd-container" style="width: 260px;">
 
-                                        <?php 
-                                                $note = '';
-                                                $wcgb_notes = WC()->session->get('wcgb_notes');
-                                            
-                                                if(isset( $wcgb_notes[$package] ) ){
-                                                    $note = $wcgb_notes[$package];
+                                            <?php 
+                                                    $note = '';
+                                                    $wcgb_notes = WC()->session->get('wcgb_notes');
                                                 
-                                                }
-                                            
-                                            ?>
-                                            <textarea class="package-note" rows="4" cols="50" data-package='<?php echo $package; ?>' ><?php echo $note ?></textarea>
-                                            
-                                        </div>
-                                        
-                                        <div class="cb-item-price">
-                                            <?php //echo '<h2 class="item-cb-free"> FREE</h2>'; ?>
-                                            <button class="pd-button save-note" data-package='<?php echo $package; ?>'>Save</button>
-                                        </div>
-                                        
+                                                    if(isset( $wcgb_notes[$package] ) ){
+                                                        $note = $wcgb_notes[$package];
+                                                    
+                                                    }
                                                 
-                                    </div>
+                                                ?>
+                                                <textarea class="package-note" rows="4" cols="50" data-package='<?php echo $package; ?>' ><?php echo $note ?></textarea>
+                                                
+                                            </div>
+                                            
+                                            <div class="cb-item-price">
+                                                <?php //echo '<h2 class="item-cb-free"> FREE</h2>'; ?>
+                                                <button class="pd-button save-note" data-package='<?php echo $package; ?>'>Save</button>
+                                            </div>
+                                            
+                                                    
+                                        </div>
 
-                                    <div class="pack-rb">
-                                        <button class="delete-package pd-button" data-package='<?php echo $package; ?>' data-gb-id = '<?php echo $package_product; ?>' data-gb-ckey= '<?php echo $gb_cart_item_key; ?>'  >Delete package</button>
-                                    </div>
+                                        <div class="pack-rb">
+                                            <button class="delete-package pd-button" data-package='<?php echo $package; ?>' data-gb-id = '<?php echo $package_product; ?>' data-gb-ckey= '<?php echo $gb_cart_item_key; ?>'  >Delete package</button>
+                                        </div>
+                                    <?php } ?>
+
+             
                                 </div>
-                            <?php } ?>
+                                <?php 
+                                
+                                $current_package_count++;
+
+                            } ?>
                         
                         <div class="package-gb-cont">
                             <?php if ( wc_coupons_enabled() ) { ?>
@@ -547,7 +569,7 @@ do_action( 'woocommerce_before_cart' );
                         jQuery('.save-note').on('click', function(event) {
                             event.preventDefault();
 
-                            jQuery('html, body, .save-note').css("cursor", "wait"); 
+                            jQuery('.wcgb-loading').show();
                             
                             var package = jQuery(this).data('package');
 
@@ -579,8 +601,7 @@ do_action( 'woocommerce_before_cart' );
                                     } else {
                                        
                                     }
-                                    jQuery('html, body').css("cursor", "default");   
-                                    jQuery('.save-note').removeAttr("style")
+                                    jQuery('.wcgb-loading').hide();
                                     
                                    
                                 }
@@ -595,12 +616,10 @@ do_action( 'woocommerce_before_cart' );
                         jQuery('.btnOpenForm').on('click', function(event) {
                             event.preventDefault();
 
-                            jQuery('html, body, .btnOpenForm').css("cursor", "wait"); 
+                            jQuery('.wcgb-loading').show();
                           
-
                             var package = jQuery(this).data('package');
                             jQuery('.form-popup-bg #package-id').val(package);
-                            
                             
 
                             var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
@@ -636,8 +655,7 @@ do_action( 'woocommerce_before_cart' );
                                     } else {
                                         jQuery('.form-popup-bg').addClass('is-visible');
                                     }
-                                    jQuery('html, body').css("cursor", "default");   
-                                    jQuery('.btnOpenForm').removeAttr("style")
+                                    jQuery('.wcgb-loading').hide();
                                     
                                    
                                 }
@@ -660,7 +678,7 @@ do_action( 'woocommerce_before_cart' );
                         jQuery('#wcgb-user-package-address').submit(function (e) {
                             e.preventDefault();
                             
-                            jQuery('html, body, #wcgb-user-package-address').css("cursor", "wait"); 
+                            jQuery('.wcgb-loading').show();
 
                             var full_name = jQuery('#package-fname').val();
                             var comp_name = jQuery('#package-cname').val();
@@ -702,8 +720,7 @@ do_action( 'woocommerce_before_cart' );
                                     } else {
                                         
                                     }
-                                    jQuery('html, body').css("cursor", "default");   
-                                    jQuery('#wcgb-user-package-address').removeAttr("style")
+                                    jQuery('.wcgb-loading').hide();
                                 }
                             });
 
@@ -729,8 +746,11 @@ do_action( 'woocommerce_before_cart' );
     jQuery(document).ready(function($) {
 
         jQuery('.delete-package').on('click', function(e) {
-
             e.preventDefault();
+
+            
+            jQuery('.wcgb-loading').show();
+
             var package = jQuery(this).data('package');
             var gb_key = jQuery(this).data('gb-ckey');
             var gb_id = jQuery(this).data('gb-id');

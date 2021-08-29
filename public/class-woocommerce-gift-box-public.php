@@ -652,9 +652,9 @@ class Woocommerce_Gift_Box_Public {
 						If it is, would you like to add a card?
 						<div></div>
 						<?php  if(get_option( 'wcgb_greeting_id')){ ?>
-							<a href="<?php echo esc_url(get_permalink( get_option( 'wcgb_greeting_id') )); ?>" class="button" > Yes, add card! </a>
+							<a href="<?php echo esc_url( get_permalink( get_option( 'wcgb_greeting_id') ).'?op=1' ); ?>" class="button" > Yes, add card! </a>
 						<?php } ?>
-							<a href="<?php echo esc_url(wc_get_cart_url()); ?>" class="button" > Go To Cart </a>
+							<a href="<?php echo esc_url(wc_get_cart_url().'?op=1' ); ?>" class="button" > Go To Cart </a>
 
 								
 					</div>
@@ -698,12 +698,21 @@ class Woocommerce_Gift_Box_Public {
 
 	}
 
+	public function wcgb_get_popup_parameter(){
+
+		if (isset($_GET['op']) && $_GET['op'] == 1) {
+			
+			WC()->session->set('wcgb_show_popup', 'false' );
+		  } 
+	}
+
 	public function wcgb_reset_session(){
 		WC()->session->set('wcgb_packages', '' );
 		WC()->session->set('wcgb_current_package',  '' );
 	    WC()->session->set('wcgb_wraps', '');
 		WC()->session->set('wcgb_address', '');
 		WC()->session->set('wcgb_notes', '');
+		WC()->session->set('wcgb_show_popup', 'true' );
 		
 	}
 

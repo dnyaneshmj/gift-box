@@ -292,11 +292,6 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
 						foreach ( $cart_packages as $product ) {
 									
 							if($product['package'] != $package ) continue;
-												
-							//
-							$is_greeting_card = get_post_meta( $product_id, 'is_greeting_card', true );
-							($is_greeting_card)? array_push($greeting_cards,  $package ) : '';
-							
 
 							$is_have_product = true; 
 
@@ -306,6 +301,9 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
 							$_product     = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 							$product_id   = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
 							
+                            $is_greeting_card = get_post_meta( $product_id, 'is_greeting_card', true );
+							($is_greeting_card)? array_push($greeting_cards,  $package ) : '';
+
 							if ( $_product && $_product->exists() && $cart_item['quantity'] > 0 && apply_filters( 'woocommerce_widget_cart_item_visible', true, $cart_item, $cart_item_key ) ) {
 								$product_name      = apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key );
 								$thumbnail         = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
@@ -492,16 +490,18 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
 			<p class="buttons">
 				<?php if (isset($opt_header_shopping_cart_button['view-cart']) && ($opt_header_shopping_cart_button['view-cart'] == '1')):?>
 					<?php 
-						
-						if( empty($greeting_cards) ){ ?>
+						$show_popup = WC()->session->get('wcgb_show_popup');
+                        
+						if( empty($greeting_cards) && $show_popup != 'false' ){ ?>
 							<script>
 								jQuery(document).ready(function() {
 								
 									jQuery('body').on('click',"#wcgb-checkout-btn", function(e) {
 									e.preventDefault();
 
-									jQuery('#wcgb-checkout-modal').show();
-									
+									    jQuery('#wcgb-checkout-modal').show();
+                                        //jQuery.session.set("wcgb_show_popup", "false");
+                                        
 									});
 
 									jQuery('body').on('click',"#wcgb-checkout-modal .close", function(e) {
@@ -516,7 +516,7 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
 							</script>
 
                     		<button id="wcgb-checkout-btn" class="button wc-forward"><?php esc_html_e( 'View Cart', 'g5plus-handmade' ); ?></button>
-
+                                
                     <?php } else{ ?>
 
                     	<a href="<?php echo esc_url(wc_get_cart_url()); ?>" class="button wc-forward"><?php esc_html_e( 'View Cart', 'g5plus-handmade' ); ?></a> 

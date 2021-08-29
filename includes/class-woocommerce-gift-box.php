@@ -179,7 +179,7 @@ class Woocommerce_Gift_Box {
 		
 		$this->loader->add_action( 'init', $plugin_public, 'wcgb_create_shortcode' );
 
-		//$this->loader->add_action('init', $plugin_public, 'prevent_admin_access');
+		$this->loader->add_action('init', $plugin_public, 'wcgb_get_popup_parameter');
 
 		$this->loader->add_action( 'woocommerce_product_query', $plugin_public, 'wcgb_hide_box_and_wrap' );
 		

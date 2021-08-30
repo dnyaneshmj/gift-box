@@ -303,7 +303,7 @@ do_action( 'woocommerce_before_cart' );
 
                                             ?>
 
-                                            <div class="gf-row">
+                                            <div class="gf-row woocommerce-cart-form__cart-item cart_item">
                                                 
                                                 <div class="gf-thumb">
                                                 <!-- <img src="Bookblock-Florists-pink-spray-large-arrangement-main.jpg" class="pdthumb"> -->
@@ -340,7 +340,7 @@ do_action( 'woocommerce_before_cart' );
                                                 <p class="item-sku"> <b>SKU :</b> <span> ER345</span> </p>
                                                 </div>
                                                 
-                                                <div class="gf-item-count">
+                                                <div class="gf-item-count product-quantity">
                                                     <!-- <span class="quantity-minus">-</span>
                                                     <span class="quantity-count" style="vertical-align: middle;">2</span>
                                                     <span class="quantity-plus">+</span> -->
@@ -572,7 +572,7 @@ do_action( 'woocommerce_before_cart' );
                                         <p class="item-sku"> <b>SKU :</b> <span> ER345</span> </p>
                                         </div>
                                         
-                                        <div class="gf-item-count">
+                                        <div class="gf-item-count product-quantity">
                                             <!-- <span class="quantity-minus">-</span>
                                             <span class="quantity-count" style="vertical-align: middle;">2</span>
                                             <span class="quantity-plus">+</span> -->
@@ -690,303 +690,6 @@ do_action( 'woocommerce_before_cart' );
                             </form>
                     </div>
                 </div> -->
-                <script>
-
-                    jQuery(document).ready(function() {
-                        
-                        //wcgb-to-checkout
-                        
-                        jQuery('#wcgb-to-checkout').on('click', function(event) {
-                            event.preventDefault();
-                            jQuery('.wcgb-loading').show();
-
-                            jQuery(".delete-package.hidden").each(function(index) {
-                               
-
-                                var package = jQuery(this).data('package');
-                                var gb_key = jQuery(this).data('gb-ckey');
-                                var gb_id = jQuery(this).data('gb-id');
-                                var gw_id = jQuery('#gw-ckey-'+package).val();
-
-
-
-                                var products = [];
-                                jQuery(".delete-"+package).map(function() {
-                                    products.push(jQuery(this).data('cikey'));
-                                }).get();
-
-
-                                var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
-                                        
-                                var formData = {
-                                    package: package,
-                                    gb_key: gb_key,
-                                    gw_key: gw_id,
-                                    products: products,
-                                };
-
-                                jQuery.ajax({
-                                    url: ajaxurl,
-                                    type: 'post',
-                                    data: {
-                                        formData: formData,
-                                        // security: check_ref,
-                                        dataType: "json",
-                                        encode: true,
-                                        action: 'wcgb_remove_pkg_from_cart'
-                                    },
-                                    error: function(response) {
-                                        console.log(response);
-                                    },
-                                    success: function(response) {
-                                        
-                                    }
-                                });
-                            });
-                            jQuery('.wcgb-loading').hide();
-                            window.location.href = "<?php echo wc_get_checkout_url() ?>";
-                        
-                        });
-
-                       var show = false;
-
-                        jQuery("textarea.package-note").each(function(index) { 
-                               if(jQuery(this).val() == ''){
-                                    show = false;
-                                    jQuery(this).removeClass('saved');
-                                    return false;
-                                }else{
-                                    jQuery(this).addClass('saved');
-                                    show = true;
-                                }
-                        });
-
-                        if(show){
-                            jQuery('#wcgb-to-checkout').show();
-                        }else{
-                            jQuery('#wcgb-to-checkout').hide();
-                        }
-                    
-                        jQuery('#add-new-box').on('click', function(event) {
-                            event.preventDefault();
-                            
-                            jQuery('.wcgb-loading').show();
-
-                            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
-                
-                            jQuery.ajax({
-                                url: ajaxurl,
-                                type: 'post',
-                                data: {
-                                    dataType: "json",
-                                    encode: true,
-                                    action: 'wcgb_add_new_box'
-                                },
-                                error: function(response) {
-                                    console.log(response);
-                                },
-                                success: function(response) {
-                                    
-                                    if (response.success) {
-                                        
-                                        window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
-                                        jQuery('.wcgb-loading').hide();
-
-                                    } else {
-                                        jQuery('.wcgb-loading').hide();
-                                    }
-                                   
-                                    
-                                
-                                }
-                                
-                            });  
-
-                        });
-                       
-                        jQuery('.save-note').on('click', function(event) {
-                            event.preventDefault();
-
-                            jQuery('.wcgb-loading').show();
-                            
-                            var package = jQuery(this).data('package');
-
-                            var note = jQuery('textarea[data-package="'+package+'"]').val();
-                           
-                            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
-                    
-                            var formData = {
-                                package: package,
-                                note: note
-                            };
-                
-                            jQuery.ajax({
-                                url: ajaxurl,
-                                type: 'post',
-                                data: {
-                                    formData: formData,
-                                    dataType: "json",
-                                    encode: true,
-                                    action: 'wcgb_save_note_of_package'
-                                },
-                                error: function(response) {
-                                    console.log(response);
-                                },
-                                success: function(response) {
-                                    
-                                    if (response.success) {
-                                        var show = false;
-                                        
-                                        jQuery("textarea.package-note").addClass('saved');
-
-                                        jQuery("textarea.package-note.saved").each(function(index) {
-                                                if(jQuery(this).val() == ''){
-                                                    show = false;
-                                                    jQuery(this).removeClass('saved');
-                                                    return false;
-                                                }else{
-                                                    jQuery(this).addClass('saved');
-                                                    show = true;
-                                                    
-                                                }
-                                        });
-
-                                        if(show){
-                                            jQuery('#wcgb-to-checkout').show();
-                                        }else{
-                                            jQuery('#wcgb-to-checkout').hide();
-                                        }
-                                        jQuery('.wcgb-loading').hide();
-  
-                                    } else {
-                                        jQuery('.wcgb-loading').hide();
-                                    }
-                                    
-                                    
-                                   
-                                }
-                                
-                            });                    
-                      
-                        });
-
-                        jQuery('.btnOpenForm').on('click', function(event) {
-                            event.preventDefault();
-
-                            jQuery('.wcgb-loading').show();
-                          
-                            var package = jQuery(this).data('package');
-                            jQuery('.form-popup-bg #package-id').val(package);
-                            
-
-                            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
-                    
-                            var formData = {
-                                package: package,
-                            };
-                
-                            jQuery.ajax({
-                                url: ajaxurl,
-                                type: 'post',
-                                data: {
-                                    formData: formData,
-                                    dataType: "json",
-                                    encode: true,
-                                    action: 'wcgb_get_address_of_package'
-                                },
-                                error: function(response) {
-                                    console.log(response);
-                                },
-                                success: function(response) {
-                                    
-                                    if (response.success) {
-                                        
-                                        jQuery('#package-fname').val(response.data.full_name);
-                                        jQuery('#package-cname').val(response.data.comp_name);
-                                        jQuery('#package-email').val(response.data.email);
-                                        jQuery('#package-phone').val(response.data.phone);
-                                        jQuery('#package-address').val(response.data.address);
-
-
-                                        jQuery('.form-popup-bg').addClass('is-visible');
-                                    } else {
-                                        jQuery('.form-popup-bg').addClass('is-visible');
-                                    }
-                                    jQuery('.wcgb-loading').hide();
-                                    
-                                   
-                                }
-                                
-                            });
-                
-                            
-                            
-                      
-                        });
-                    
-                        //close popup when clicking x or off popup
-                        jQuery('.form-popup-bg').on('click', function(event) {
-                            if (jQuery(event.target).is('.form-popup-bg') || jQuery(event.target).is('#btnCloseForm')) {
-                                event.preventDefault();
-                                jQuery(this).removeClass('is-visible');
-                            }
-                        });
-
-                        jQuery('#wcgb-user-package-address').submit(function (e) {
-                            e.preventDefault();
-                            
-                            jQuery('.wcgb-loading').show();
-
-                            var full_name = jQuery('#package-fname').val();
-                            var comp_name = jQuery('#package-cname').val();
-                            var email = jQuery('#package-email').val();
-                            var phone = jQuery('#package-phone').val();
-                            var address = jQuery('#package-address').val();
-                            var package = jQuery('.form-popup-bg #package-id').val();
-
-                            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
-                    
-                            var formData = {
-                                package: package,
-                                full_name: full_name,
-                                comp_name: comp_name,
-                                email: email,
-                                phone: phone,
-                                address: address,
-                            };
-                
-                            jQuery.ajax({
-                                url: ajaxurl,
-                                type: 'post',
-                                data: {
-                                    formData: formData,
-                                    // security: check_ref,
-                                    dataType: "json",
-                                    encode: true,
-                                    action: 'wcgb_add_address_to_package'
-                                },
-                                error: function(response) {
-                                    console.log(response);
-                                },
-                                success: function(response) {
-                                    console.log(response);
-
-                                    if (response.success) {
-                                        jQuery('.btnOpenForm[data-package="'+package+'"]').html(full_name);
-                                        jQuery('.form-popup-bg').removeClass('is-visible');
-                                    } else {
-                                        
-                                    }
-                                    jQuery('.wcgb-loading').hide();
-                                }
-                            });
-
-                            
-                            
-                        });
-                    });                        
-                </script>
-
             </div>
         </div>
     </div>
@@ -1000,7 +703,36 @@ do_action( 'woocommerce_before_cart' );
         jQuery('.form-popup-bg').removeClass('is-visible');
     }
 
-    jQuery(document).ready(function($) {
+    jQuery(document).ready(function() {
+
+        jQuery('.woocommerce').on('change', 'input.qty', function(){
+            jQuery("[name='update_cart']").trigger("click");
+        });
+
+                
+        setTimeout(function(){ 
+            var show = false;
+
+            jQuery("textarea.package-note").each(function(index) { 
+
+                if(jQuery(this).val() == ''){
+                        show = false;
+                        jQuery(this).removeClass('saved');
+                        return false;
+                }else{
+                    jQuery(this).addClass('saved');
+                    show = true;
+                }
+
+            });
+
+            if(show){
+                jQuery('#wcgb-to-checkout').show();
+            }else{
+                jQuery('#wcgb-to-checkout').hide();
+            }
+
+        }, 4000);
 
         jQuery('.delete-package').on('click', function(e) {
             e.preventDefault();
@@ -1057,6 +789,281 @@ do_action( 'woocommerce_before_cart' );
             
         
         });    
+
+
+        jQuery('#wcgb-to-checkout').on('click', function(event) {
+            event.preventDefault();
+
+            jQuery('.wcgb-loading').show();
+            jQuery(".delete-package.hidden").each(function(index) {
+                
+
+                var package = jQuery(this).data('package');
+                var gb_key = jQuery(this).data('gb-ckey');
+                var gb_id = jQuery(this).data('gb-id');
+                var gw_id = jQuery('#gw-ckey-'+package).val();
+
+
+
+                var products = [];
+                jQuery(".delete-"+package).map(function() {
+                    products.push(jQuery(this).data('cikey'));
+                }).get();
+
+
+                var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+                        
+                var formData = {
+                    package: package,
+                    gb_key: gb_key,
+                    gw_key: gw_id,
+                    products: products,
+                };
+
+                jQuery.ajax({
+                    url: ajaxurl,
+                    type: 'post',
+                    data: {
+                        formData: formData,
+                        // security: check_ref,
+                        dataType: "json",
+                        encode: true,
+                        action: 'wcgb_remove_pkg_from_cart'
+                    },
+                    error: function(response) {
+                        console.log(response);
+                    },
+                    success: function(response) {
+                        
+                    }
+                });
+            });
+    
+            window.location.href = "<?php echo wc_get_checkout_url() ?>";
+        
+        });
+
+
+
+
+    
+        jQuery('#add-new-box').on('click', function(event) {
+            event.preventDefault();
+            
+            jQuery('.wcgb-loading').show();
+
+            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'post',
+                data: {
+                    dataType: "json",
+                    encode: true,
+                    action: 'wcgb_add_new_box'
+                },
+                error: function(response) {
+                    console.log(response);
+                },
+                success: function(response) {
+                    
+                    if (response.success) {
+                        
+                        window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+                        jQuery('.wcgb-loading').hide();
+
+                    } else {
+                        jQuery('.wcgb-loading').hide();
+                    }
+                    
+                    
+                
+                }
+                
+            });  
+
+        });
+        
+        jQuery('.save-note').on('click', function(event) {
+            event.preventDefault();
+
+            jQuery('.wcgb-loading').show();
+            
+            var package = jQuery(this).data('package');
+
+            var note = jQuery('textarea[data-package="'+package+'"]').val();
+            
+            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+    
+            var formData = {
+                package: package,
+                note: note
+            };
+
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'post',
+                data: {
+                    formData: formData,
+                    dataType: "json",
+                    encode: true,
+                    action: 'wcgb_save_note_of_package'
+                },
+                error: function(response) {
+                    console.log(response);
+                },
+                success: function(response) {
+                    
+                    if (response.success) {
+                        var show = false;
+                        
+                        jQuery("textarea.package-note").addClass('saved');
+
+                        jQuery("textarea.package-note.saved").each(function(index) {
+                                if(jQuery(this).val() == ''){
+                                    show = false;
+                                    jQuery(this).removeClass('saved');
+                                    return false;
+                                }else{
+                                    jQuery(this).addClass('saved');
+                                    show = true;
+                                    
+                                }
+                        });
+
+                        if(show){
+                            jQuery('#wcgb-to-checkout').show();
+                        }else{
+                            jQuery('#wcgb-to-checkout').hide();
+                        }
+                        jQuery('.wcgb-loading').hide();
+
+                    } else {
+                        jQuery('.wcgb-loading').hide();
+                    }
+                    
+                    
+                    
+                }
+                
+            });                    
+        
+        });
+
+        jQuery('.btnOpenForm').on('click', function(event) {
+            event.preventDefault();
+
+            jQuery('.wcgb-loading').show();
+            
+            var package = jQuery(this).data('package');
+            jQuery('.form-popup-bg #package-id').val(package);
+            
+
+            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+    
+            var formData = {
+                package: package,
+            };
+
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'post',
+                data: {
+                    formData: formData,
+                    dataType: "json",
+                    encode: true,
+                    action: 'wcgb_get_address_of_package'
+                },
+                error: function(response) {
+                    console.log(response);
+                },
+                success: function(response) {
+                    
+                    if (response.success) {
+                        
+                        jQuery('#package-fname').val(response.data.full_name);
+                        jQuery('#package-cname').val(response.data.comp_name);
+                        jQuery('#package-email').val(response.data.email);
+                        jQuery('#package-phone').val(response.data.phone);
+                        jQuery('#package-address').val(response.data.address);
+
+
+                        jQuery('.form-popup-bg').addClass('is-visible');
+                    } else {
+                        jQuery('.form-popup-bg').addClass('is-visible');
+                    }
+                    jQuery('.wcgb-loading').hide();
+                    
+                    
+                }
+                
+            });
+
+            
+            
+        
+        });
+    
+        //close popup when clicking x or off popup
+        jQuery('.form-popup-bg').on('click', function(event) {
+            if (jQuery(event.target).is('.form-popup-bg') || jQuery(event.target).is('#btnCloseForm')) {
+                event.preventDefault();
+                jQuery(this).removeClass('is-visible');
+            }
+        });
+
+        jQuery('#wcgb-user-package-address').submit(function (e) {
+            e.preventDefault();
+            
+            jQuery('.wcgb-loading').show();
+
+            var full_name = jQuery('#package-fname').val();
+            var comp_name = jQuery('#package-cname').val();
+            var email = jQuery('#package-email').val();
+            var phone = jQuery('#package-phone').val();
+            var address = jQuery('#package-address').val();
+            var package = jQuery('.form-popup-bg #package-id').val();
+
+            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+    
+            var formData = {
+                package: package,
+                full_name: full_name,
+                comp_name: comp_name,
+                email: email,
+                phone: phone,
+                address: address,
+            };
+
+            jQuery.ajax({
+                url: ajaxurl,
+                type: 'post',
+                data: {
+                    formData: formData,
+                    // security: check_ref,
+                    dataType: "json",
+                    encode: true,
+                    action: 'wcgb_add_address_to_package'
+                },
+                error: function(response) {
+                    console.log(response);
+                },
+                success: function(response) {
+                    console.log(response);
+
+                    if (response.success) {
+                        jQuery('.btnOpenForm[data-package="'+package+'"]').html(full_name);
+                        jQuery('.form-popup-bg').removeClass('is-visible');
+                    } else {
+                        
+                    }
+                    jQuery('.wcgb-loading').hide();
+                }
+            });
+
+            
+            
+        });
 
     });
 

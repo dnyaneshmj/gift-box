@@ -219,7 +219,7 @@ class Woocommerce_Gift_Box {
 
 		$this->loader->add_action( 'woocommerce_checkout_create_order_line_item',  $plugin_public, 'wcgb_store_address_to_item', 10, 4 );
 		
-		$this->loader->add_action( 'woocommerce_thankyou',  $plugin_public, 'wcgb_reset_session');
+		//$this->loader->add_action( 'woocommerce_thankyou',  $plugin_public, 'wcgb_reset_session');
 		
 		
 		

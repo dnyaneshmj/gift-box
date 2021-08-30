@@ -295,10 +295,6 @@ class Woocommerce_Gift_Box_Public {
 			$cart_item_data['item_package'] = $current_package;
 			$cart_item_data['package_product'] = $packages[$current_package];
 
-		}else{
-			
-			$cart_item_data['item_package'] = 'package1';
-
 		}
 
 		return $cart_item_data;
@@ -326,7 +322,8 @@ class Woocommerce_Gift_Box_Public {
 				
 				WC()->session->set('wcgb_packages', [ 'package1' => ['product_id' => $product_id,'cart_item_key' => $cart_item_key ]] );
 				WC()->session->set('wcgb_current_package', 'package1' );
-				WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('package' => 'package1' ) );
+				WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' => 'package1'  ) );
+
 			}else{
 
 				$currentPackageCount = count($wcgb_packages ) + 1;
@@ -508,7 +505,7 @@ class Woocommerce_Gift_Box_Public {
 		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
 		$gb_key = isset($formData['gb_key']) && $formData['gb_key'] != '' ? $formData['gb_key'] : '' ;
 		$gw_key = isset($formData['gw_key']) && $formData['gw_key'] != '' ? $formData['gw_key'] : '' ;
-		$products = isset($formData['products']) && $formData['products']  ? $formData['products'] : [] ;
+		$products = isset($formData['products']) ? $formData['products'] : [] ;
 		
 		//$old_gb_ckey = isset($formData['old_gb_ckey']) && $formData['old_gb_ckey'] != '' ? $formData['old_gb_ckey'] : '' ;
 	
@@ -531,9 +528,9 @@ class Woocommerce_Gift_Box_Public {
 				$wcgb_packages[$package] = [];
 				WC()->session->set('wcgb_packages', $wcgb_packages );
 
-				end($wcgb_packages);
-				$key = key($wcgb_packages);
-				WC()->session->set('wcgb_current_package', $current_package );
+				// end($wcgb_packages);
+				// $key = key($wcgb_packages);
+				// WC()->session->set('wcgb_current_package', $current_package );
 
 				unset($wcgb_notes[$package]);
 				WC()->session->set('wcgb_notes', $wcgb_notes );
@@ -541,7 +538,7 @@ class Woocommerce_Gift_Box_Public {
 				unset($wcgb_address[$package]);
 				WC()->session->set('wcgb_address', $wcgb_address );
 
-				unset($wcgb_wraps[$package]);
+				$wcgb_wraps[$package] = [];
 				WC()->session->set('wcgb_wraps', $wcgb_wraps );
 
 			}			
@@ -558,6 +555,9 @@ class Woocommerce_Gift_Box_Public {
             wp_die();
 
 		}
+
+		wp_send_json_success();
+		wp_die();
 
 	}
 
@@ -749,13 +749,15 @@ class Woocommerce_Gift_Box_Public {
 
 		$wcgb_packages = WC()->session->get('wcgb_packages');
 		$current_package = WC()->session->get('wcgb_current_package');
-		
+		$wcgb_wraps = WC()->session->set( 'wcgb_wraps');
+
 		if(  !$wcgb_packages && !$current_package ){
 			
 			$gb_id = $this->get_lowest_cost_product('is_gift_box');
 			$wrap_id = $this->get_lowest_cost_product('is_gift_wrap');
 
 			WC()->session->set('wcgb_packages', [ 'package1' => ['product_id' => $gb_id,'cart_item_key' => '' ] ] );
+			WC()->session->set( 'wcgb_wraps', [ 'package1' =>  ['product_id' => $wrap_id, 'cart_item_key' => '' ] ]);
 			WC()->session->set('wcgb_current_package', 'package1' );
 
 			WC()->cart->add_to_cart( $gb_id ,1,  0,array(), array('update_package' => true , 'package' => 'package1'  ) );
@@ -771,14 +773,20 @@ class Woocommerce_Gift_Box_Public {
 			$gb_id = $this->get_lowest_cost_product('is_gift_box');
 			$wrap_id = $this->get_lowest_cost_product('is_gift_wrap');
 
-			WC()->cart->add_to_cart( $gb_id ,1,  0,array(), array('update_package' => true , 'package' => $current_package) );
-			WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' =>  $current_package  ) );
-
 			$wcgb_packages = array_merge($wcgb_packages, [  $current_package => ['product_id' => $gb_id,'cart_item_key' => '' ] ]);
+			
+			$wcgb_wraps = array_merge($wcgb_wraps, [  $current_package => ['product_id' => $wrap_id,'cart_item_key' => '' ] ]);
 
 			WC()->session->set('wcgb_packages', $wcgb_packages );
 			WC()->session->set('wcgb_current_package',  $current_package );
+			WC()->session->set( 'wcgb_wraps', $wcgb_wraps );
+
 			WC()->session->set('wcgb_new_package', 'true' );
+
+			WC()->cart->add_to_cart( $gb_id ,1,  0,array(), array('update_package' => true , 'package' => $current_package) );
+			WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' =>  $current_package  ) );
+
+
 		}
 
 		wp_send_json_success();

@@ -118,25 +118,25 @@ do_action( 'woocommerce_before_cart' );
                         //var_dump(WC()->session);
                         
 
-                            if( isset($_POST['new_box']) ){
+                            // if( isset($_POST['new_box']) ){
 
-                                if(  !$wcgb_packages && !$current_package ){
+                            //     if(  !$wcgb_packages && !$current_package ){
 	
-                                    WC()->session->set('wcgb_packages', [ 'package1' => ['product_id' => 'new','cart_item_key' => '' ] ] );
-                                    WC()->session->set('wcgb_current_package', 'package1' );
+                            //         WC()->session->set('wcgb_packages', [ 'package1' => ['product_id' => 'new','cart_item_key' => '' ] ] );
+                            //         WC()->session->set('wcgb_current_package', 'package1' );
                     
-                                }else{
-                                    $currentPackageCount = count($wcgb_packages ) + 1;
-                                    $current_package = 'package'.$currentPackageCount;
-                                    $wcgb_packages = array_merge($wcgb_packages, [  $current_package => ['product_id' => 'new','cart_item_key' => '' ] ]);
+                            //     }else{
+                            //         $currentPackageCount = count($wcgb_packages ) + 1;
+                            //         $current_package = 'package'.$currentPackageCount;
+                            //         $wcgb_packages = array_merge($wcgb_packages, [  $current_package => ['product_id' => 'new','cart_item_key' => '' ] ]);
     
-                                    WC()->session->set('wcgb_packages', $wcgb_packages );
-                                    WC()->session->set('wcgb_current_package',  $current_package );
-                                    WC()->session->set('wcgb_new_package', 'true' );
-                                }
+                            //         WC()->session->set('wcgb_packages', $wcgb_packages );
+                            //         WC()->session->set('wcgb_current_package',  $current_package );
+                            //         WC()->session->set('wcgb_new_package', 'true' );
+                            //     }
 
                                 
-                            }
+                            // }
                             //var_dump($wcgb_packages); 
                             //var_dump($current_package); 
                             //die;
@@ -146,9 +146,11 @@ do_action( 'woocommerce_before_cart' );
                             foreach($wcgb_packages as $package => $data){
 
                                 //var_dump($package);
+                                if( empty( $data )) continue;
+
                                 $package_product = $data['product_id'];
 
-                                $packages_product = [];
+                                $packages_product = $individual_products = [];
                                 foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
                                     
                                     $product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
@@ -157,14 +159,18 @@ do_action( 'woocommerce_before_cart' );
                     
                                     $is_gift_box = get_post_meta( $product_id, 'is_gift_box', true );
                                     $is_gift_wrap = get_post_meta( $product_id, 'is_gift_wrap', true );
+                                    $is_individual = get_post_meta( $product_id, 'is_individual', true );
 
-                                    if( $package == $item_package && $package_product != $product_id && $is_gift_box != 'true' && $is_gift_wrap != 'true' ){
+                                    if( $package == $item_package && $package_product != $product_id && $is_gift_box != 'true' && $is_gift_wrap != 'true' && $is_individual != 'true'  ){
                                         
                                         //if($current_package == $package && $package_product != 'new' )
                                         //$showButtons = false;
                                         
                                         $packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product,  'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
                                     //$packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product, 'item_package' => $item_package ];
+                                    }
+                                    if($is_individual == 'true' ){
+                                        $individual_products[] = [ 'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
                                     }
                                 }
                                 $cart_packages = array_merge($cart_packages, $packages_product);
@@ -179,13 +185,16 @@ do_action( 'woocommerce_before_cart' );
                             $giftBoxes = $gift_box_public->wcgb_get_gift_box_options();
                             $giftWraps = $gift_box_public->wcgb_get_gift_wrap_options();
                             
-                           
                             $package_count = count( $wcgb_packages );
                             $current_package_count = 0;
+                            $showButtons = false;
+
                             foreach($wcgb_packages as $package => $data){ 
                                 //echo $package;
                                 //echo get_the_title( $package_product );
-                                $showButtons = false;
+                                if( empty( $data )) continue;
+
+                                $showButtons = true;
                                 $package_product = $data['product_id'];
                                 $gb_cart_item_key = $data['cart_item_key'];
                                 $gift_wrap = $gw_cart_item_key = '';
@@ -282,7 +291,7 @@ do_action( 'woocommerce_before_cart' );
                                             
                                             if($product['package'] != $package ) continue;
                                             
-                                            $showButtons = true;
+                                           
 
                                             $is_have_product = true; 
 
@@ -385,13 +394,14 @@ do_action( 'woocommerce_before_cart' );
 
                                         }
                                         
-                                        if(!$is_have_product && ($package_count - $current_package_count ) <= 1 ){
+                                        if(!$is_have_product && ($package_count - $current_package_count ) == 1 ){
 
                                             $url = wc_get_page_permalink( 'shop' );
                                             echo '<div class="gf-row">';
                                             echo "There is no itme in package! please add product in package";
                                             echo '<a href="'.$url.'" class="pd-button" style="margin-left: 2%;margin-top: 0%;">Go to Shop</a>';
                                             echo '</div>';
+                                            echo '<button class="delete-package hidden" data-package="'.$package.'" data-gb-id = "'. $package_product.'" data-gb-ckey= "'.$gb_cart_item_key.'"  style="margin-left: 2%;margin-top: 0%;" >Delete package</button>';
                                         }
                                     
                                     ?>
@@ -399,6 +409,8 @@ do_action( 'woocommerce_before_cart' );
                                         <div class="gf-row">
                                             There is no itme in package!
                                             <button class="delete-package pd-button" data-package='<?php echo $package; ?>' data-gb-id = '<?php echo $package_product; ?>' data-gb-ckey= '<?php echo $gb_cart_item_key; ?>'  style="margin-left: 2%;margin-top: 0%;" >Delete package</button>
+                                            <button class="delete-package hidden" data-package='<?php echo $package; ?>' data-gb-id = '<?php echo $package_product; ?>' data-gb-ckey= '<?php echo $gb_cart_item_key; ?>'  style="margin-left: 2%;margin-top: 0%;" >Delete package</button>
+                                            
                                         </div>
                                     <?php } ?>
 
@@ -410,7 +422,7 @@ do_action( 'woocommerce_before_cart' );
                                         </div>
                                         
                                         <div id="demo-giftwrap" class="dd-container" style="width: 260px;">
-                                            <input type="hidden" id="gw-ckey" value= '<?php echo $gw_cart_item_key; ?>'>
+                                            <input type="hidden" id="gw-ckey-<?php echo $package; ?>" value= '<?php echo $gw_cart_item_key; ?>'>
                                             <select class='giftwrap-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gw = '<?php echo $gift_wrap; ?>' data-old-ckey= '<?php echo $gw_cart_item_key; ?>' >  
                                                 <?php 
                                                 
@@ -503,6 +515,121 @@ do_action( 'woocommerce_before_cart' );
                                 $current_package_count++;
 
                             } ?>
+
+
+                        <?php 
+                           
+                           if(!empty($individual_products)){
+                                echo 'Individual Product
+                                        <div class="package-gb-cont">';
+                                foreach ( $individual_products as $product ) {
+                                            
+
+                                    $is_have_product = true; 
+
+                                    $cart_item = $product['cart_item'];
+                                    $cart_item_key  = $product['cart_item_key'];
+
+                                    $_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
+                                    $product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
+
+                                    ?>
+
+                                    <div class="gf-row">
+                                        
+                                        <div class="gf-thumb">
+                                        <!-- <img src="Bookblock-Florists-pink-spray-large-arrangement-main.jpg" class="pdthumb"> -->
+                                            <?php
+                                                $thumbnail = apply_filters( 'woocommerce_cart_item_thumbnail', $_product->get_image(), $cart_item, $cart_item_key );
+
+                                                if ( ! $product_permalink ) {
+                                                    echo wp_kses_post( $thumbnail );
+                                                } else {
+                                                    printf( '<a href="%s">%s</a>', esc_url( $product_permalink ), wp_kses_post( $thumbnail ) );
+                                                }
+                                            ?>
+                                        </div>
+                                        
+                                        <div class="gf-item-detail">
+                                        <!-- <h2 class="item-title"> Flowers Lily </h2> -->
+                                                <?php
+                                                    if ( ! $product_permalink ) {
+                                                        echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', $_product->get_name(), $cart_item, $cart_item_key ) . '&nbsp;' );
+                                                    } else {
+                                                        echo wp_kses_post( apply_filters( 'woocommerce_cart_item_name', sprintf( '<a href="%s" class="item-title" >%s</a>', esc_url( $product_permalink ), $_product->get_name() ), $cart_item, $cart_item_key ) );
+                                                    }
+
+                                                    do_action( 'woocommerce_after_cart_item_name', $cart_item, $cart_item_key );
+
+                                                    // Meta data.
+                                                    echo wc_get_formatted_cart_item_data( $cart_item ); // PHPCS: XSS ok.
+
+                                                    // Backorder notification
+                                                    if ( $_product->backorders_require_notification() && $_product->is_on_backorder( $cart_item['quantity'] ) ) {
+                                                        echo wp_kses_post( apply_filters( 'woocommerce_cart_item_backorder_notification', '<p class="backorder_notification">' . esc_html__( 'Available on backorder', 'g5plus-handmade' ) . '</p>' ) );
+                                                    }
+                                                ?>
+                                        <p class="item-sku"> <b>SKU :</b> <span> ER345</span> </p>
+                                        </div>
+                                        
+                                        <div class="gf-item-count">
+                                            <!-- <span class="quantity-minus">-</span>
+                                            <span class="quantity-count" style="vertical-align: middle;">2</span>
+                                            <span class="quantity-plus">+</span> -->
+                                            <?php
+                                                if ( $_product->is_sold_individually() ) {
+                                                    $product_quantity = sprintf( '1 <input type="hidden" name="cart[%s][qty]" value="1" />', $cart_item_key );
+                                                } else {
+                                                    $product_quantity = woocommerce_quantity_input(
+                                                        array(
+                                                            'input_name'   => "cart[{$cart_item_key}][qty]",
+                                                            'input_value'  => $cart_item['quantity'],
+                                                            'max_value'    => $_product->get_max_purchase_quantity(),
+                                                            'min_value'    => '0',
+                                                            'product_name' => $_product->get_name(),
+                                                        ),
+                                                        $_product,
+                                                        false
+                                                    );
+                                                }
+
+                                                echo apply_filters( 'woocommerce_cart_item_quantity', $product_quantity, $cart_item_key, $cart_item ); // PHPCS: XSS ok.
+                                                ?>
+                                        </div>
+                                        
+                                        <div class="gf-item-price">
+                                        <h2 class="item-price"> 
+                                            <!-- $<span>150 </span>  -->
+                                            <?php
+                                                echo apply_filters( 'woocommerce_cart_item_price', WC()->cart->get_product_price( $_product ), $cart_item, $cart_item_key );
+                                            ?>
+                                            </h2>
+                                        </div>
+                                        
+                                        <div class="gf-row-delete">
+                                        <?php
+                                                echo apply_filters( 'woocommerce_cart_item_remove_link', sprintf(
+                                                    '<a href="%s" class="cart-remove %s" aria-label="%s" data-product_id="%s" data-product_sku="%s" data-cikey="%s"><i class="fa fa-trash"></i></a>',
+                                                    esc_url( wc_get_cart_remove_url( $cart_item_key ) ),
+                                                    'delete-'.$product['package'],
+                                                    __( 'Remove this item', 'g5plus-handmade' ),
+                                                    esc_attr( $product_id ),
+                                                    esc_attr( $_product->get_sku() ),
+                                                    $cart_item_key
+                                                ), $cart_item_key );
+                                            ?>
+                                        
+                                        </div>
+                                        
+                                    </div>
+                                    <?php
+
+                                }
+                                echo '</div>';
+                           }
+
+                            
+                        ?>
                         
                         <div class="package-gb-cont">
                             <?php if ( wc_coupons_enabled() ) { ?>
@@ -513,12 +640,14 @@ do_action( 'woocommerce_before_cart' );
                             <?php } ?>
 
                             <input type="submit" class="button" name="update_cart" value="<?php esc_attr_e( 'Update cart', 'g5plus-handmade' ); ?>" />
-                            
-                            <?php if($showButtons ) { ?>
-                                <?php do_action( 'woocommerce_proceed_to_checkout' ); ?>
-                                <input type="submit" class="button" name="new_box" value="<?php esc_attr_e( 'Add New Box', 'g5plus-handmade' ); ?>" />
+                            <?php do_action( 'woocommerce_proceed_to_checkout' ); ?>
+                            <a href="#" id="wcgb-to-checkout" class="button"> Proceed to Checkout</a> 
+                            <?php if($showButtons ) { ?>   
+                               
+                                <input type="submit" id="add-new-box" class="button" value="<?php esc_attr_e( 'Add New Box', 'g5plus-handmade' ); ?>" />
                             <?php }?>
-
+                            
+                            
                             <?php do_action( 'woocommerce_cart_actions' ); ?>
 
                             <?php wp_nonce_field( 'woocommerce-cart', 'woocommerce-cart-nonce' ); ?>
@@ -564,7 +693,116 @@ do_action( 'woocommerce_before_cart' );
                 <script>
 
                     jQuery(document).ready(function() {
+                        
+                        //wcgb-to-checkout
+                        
+                        jQuery('#wcgb-to-checkout').on('click', function(event) {
+                            event.preventDefault();
+                            jQuery('.wcgb-loading').show();
 
+                            jQuery(".delete-package.hidden").each(function(index) {
+                               
+
+                                var package = jQuery(this).data('package');
+                                var gb_key = jQuery(this).data('gb-ckey');
+                                var gb_id = jQuery(this).data('gb-id');
+                                var gw_id = jQuery('#gw-ckey-'+package).val();
+
+
+
+                                var products = [];
+                                jQuery(".delete-"+package).map(function() {
+                                    products.push(jQuery(this).data('cikey'));
+                                }).get();
+
+
+                                var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+                                        
+                                var formData = {
+                                    package: package,
+                                    gb_key: gb_key,
+                                    gw_key: gw_id,
+                                    products: products,
+                                };
+
+                                jQuery.ajax({
+                                    url: ajaxurl,
+                                    type: 'post',
+                                    data: {
+                                        formData: formData,
+                                        // security: check_ref,
+                                        dataType: "json",
+                                        encode: true,
+                                        action: 'wcgb_remove_pkg_from_cart'
+                                    },
+                                    error: function(response) {
+                                        console.log(response);
+                                    },
+                                    success: function(response) {
+                                        
+                                    }
+                                });
+                            });
+                            jQuery('.wcgb-loading').hide();
+                            window.location.href = "<?php echo wc_get_checkout_url() ?>";
+                        
+                        });
+
+                       var show = false;
+
+                        jQuery("textarea.package-note").each(function(index) { 
+                               if(jQuery(this).val() == ''){
+                                    show = false;
+                                    jQuery(this).removeClass('saved');
+                                    return false;
+                                }else{
+                                    jQuery(this).addClass('saved');
+                                    show = true;
+                                }
+                        });
+
+                        if(show){
+                            jQuery('#wcgb-to-checkout').show();
+                        }else{
+                            jQuery('#wcgb-to-checkout').hide();
+                        }
+                    
+                        jQuery('#add-new-box').on('click', function(event) {
+                            event.preventDefault();
+                            
+                            jQuery('.wcgb-loading').show();
+
+                            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+                
+                            jQuery.ajax({
+                                url: ajaxurl,
+                                type: 'post',
+                                data: {
+                                    dataType: "json",
+                                    encode: true,
+                                    action: 'wcgb_add_new_box'
+                                },
+                                error: function(response) {
+                                    console.log(response);
+                                },
+                                success: function(response) {
+                                    
+                                    if (response.success) {
+                                        
+                                        window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+                                        jQuery('.wcgb-loading').hide();
+
+                                    } else {
+                                        jQuery('.wcgb-loading').hide();
+                                    }
+                                   
+                                    
+                                
+                                }
+                                
+                            });  
+
+                        });
                        
                         jQuery('.save-note').on('click', function(event) {
                             event.preventDefault();
@@ -597,19 +835,38 @@ do_action( 'woocommerce_before_cart' );
                                 success: function(response) {
                                     
                                     if (response.success) {
+                                        var show = false;
+                                        
+                                        jQuery("textarea.package-note").addClass('saved');
+
+                                        jQuery("textarea.package-note.saved").each(function(index) {
+                                                if(jQuery(this).val() == ''){
+                                                    show = false;
+                                                    jQuery(this).removeClass('saved');
+                                                    return false;
+                                                }else{
+                                                    jQuery(this).addClass('saved');
+                                                    show = true;
+                                                    
+                                                }
+                                        });
+
+                                        if(show){
+                                            jQuery('#wcgb-to-checkout').show();
+                                        }else{
+                                            jQuery('#wcgb-to-checkout').hide();
+                                        }
+                                        jQuery('.wcgb-loading').hide();
   
                                     } else {
-                                       
+                                        jQuery('.wcgb-loading').hide();
                                     }
-                                    jQuery('.wcgb-loading').hide();
+                                    
                                     
                                    
                                 }
                                 
-                            });
-                
-                            
-                            
+                            });                    
                       
                         });
 
@@ -754,7 +1011,7 @@ do_action( 'woocommerce_before_cart' );
             var package = jQuery(this).data('package');
             var gb_key = jQuery(this).data('gb-ckey');
             var gb_id = jQuery(this).data('gb-id');
-            var gw_id = jQuery('#gw-ckey').val();
+            var gw_id = jQuery('#gw-ckey-'+package).val();
 
            
 
@@ -789,6 +1046,7 @@ do_action( 'woocommerce_before_cart' );
                 success: function(response) {
                     
                     if (response.success) {
+                      
                         window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
 
                     } else {

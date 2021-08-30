@@ -104,6 +104,7 @@ class Woocommerce_Gift_Box_Public {
 	public function wcgb_create_shortcode(){
 		add_shortcode( 'gift_box_products', array($this, 'gift_box_short_code_callback') );
 		add_shortcode( 'greeting_cards', array($this, 'greeting_cards_short_code_callback') );
+		remove_action( 'woocommerce_proceed_to_checkout','woocommerce_button_proceed_to_checkout', 20);
 	}
 
 	function gift_box_short_code_callback(){ 
@@ -234,6 +235,11 @@ class Woocommerce_Gift_Box_Public {
 			'compare' => 'NOT EXISTS'
 		  );
 
+		  $meta_query[] = array(
+			'key' => 'is_individual',
+			'compare' => 'NOT EXISTS'
+		  );
+		  
 		  
 		$q->set( 'meta_query', $meta_query );
 	}
@@ -277,11 +283,21 @@ class Woocommerce_Gift_Box_Public {
 
 		$current_package = WC()->session->get('wcgb_current_package');
 		$packages = WC()->session->get('wcgb_packages' );
-	
+		
+		$is_individual = get_post_meta( $product_id, 'is_individual', true );
+		
+		// if($is_individual == true){
+		// 	return $cart_item_data;
+		// }
+
 		if(isset($current_package) && isset($packages) && ! isset($cart_item_data['item_package']) ){
 			
 			$cart_item_data['item_package'] = $current_package;
 			$cart_item_data['package_product'] = $packages[$current_package];
+
+		}else{
+			
+			$cart_item_data['item_package'] = 'package1';
 
 		}
 
@@ -343,6 +359,19 @@ class Woocommerce_Gift_Box_Public {
 				
 			}
 		}
+
+		// if($is_gift_wrap != true && $is_gift_box != true ){
+			
+		// 	if(!$wcgb_packages && !$current_package){
+		// 		$gb_id = $this->get_lowest_cost_product('is_gift_box');
+		// 		WC()->cart->add_to_cart( $gb_id ,1,  0,array(), array('package' => 'package1' ) );
+
+		// 		$wrap_id = $this->get_lowest_cost_product('is_gift_wrap');
+		// 		WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('package' => 'package1' ) );
+
+		// 	}
+			
+		// }
 
 	}
 	
@@ -499,7 +528,7 @@ class Woocommerce_Gift_Box_Public {
 				$removed = WC()->cart->remove_cart_item( $gw_key );
 				
 
-				unset($wcgb_packages[$package]);
+				$wcgb_packages[$package] = [];
 				WC()->session->set('wcgb_packages', $wcgb_packages );
 
 				end($wcgb_packages);
@@ -714,6 +743,47 @@ class Woocommerce_Gift_Box_Public {
 		WC()->session->set('wcgb_notes', '');
 		WC()->session->set('wcgb_show_popup', 'true' );
 		
+	}
+
+	public function wcgb_add_new_box(){
+
+		$wcgb_packages = WC()->session->get('wcgb_packages');
+		$current_package = WC()->session->get('wcgb_current_package');
+		
+		if(  !$wcgb_packages && !$current_package ){
+			
+			$gb_id = $this->get_lowest_cost_product('is_gift_box');
+			$wrap_id = $this->get_lowest_cost_product('is_gift_wrap');
+
+			WC()->session->set('wcgb_packages', [ 'package1' => ['product_id' => $gb_id,'cart_item_key' => '' ] ] );
+			WC()->session->set('wcgb_current_package', 'package1' );
+
+			WC()->cart->add_to_cart( $gb_id ,1,  0,array(), array('update_package' => true , 'package' => 'package1'  ) );
+			WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' => 'package1'  ) );
+
+
+
+		}else{
+
+			$currentPackageCount = count($wcgb_packages ) + 1;
+			$current_package = 'package'.$currentPackageCount;
+			
+			$gb_id = $this->get_lowest_cost_product('is_gift_box');
+			$wrap_id = $this->get_lowest_cost_product('is_gift_wrap');
+
+			WC()->cart->add_to_cart( $gb_id ,1,  0,array(), array('update_package' => true , 'package' => $current_package) );
+			WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' =>  $current_package  ) );
+
+			$wcgb_packages = array_merge($wcgb_packages, [  $current_package => ['product_id' => $gb_id,'cart_item_key' => '' ] ]);
+
+			WC()->session->set('wcgb_packages', $wcgb_packages );
+			WC()->session->set('wcgb_current_package',  $current_package );
+			WC()->session->set('wcgb_new_package', 'true' );
+		}
+
+		wp_send_json_success();
+		wp_die();
+
 	}
 
 

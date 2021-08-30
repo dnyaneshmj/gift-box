@@ -210,6 +210,11 @@ class Woocommerce_Gift_Box {
 		$this->loader->add_action( 'wp_ajax_wcgb_save_note_of_package',  $plugin_public, 'wcgb_save_package_note' );
 		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_save_note_of_package',  $plugin_public, 'wcgb_save_package_note' );
 
+		$this->loader->add_action( 'wp_ajax_wcgb_add_new_box',  $plugin_public, 'wcgb_add_new_box' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_add_new_box',  $plugin_public, 'wcgb_add_new_box' );
+
+		
+
 		$this->loader->add_action( 'wp_footer',  $plugin_public, 'wcgb_greeting_card_option' );
 
 		$this->loader->add_action( 'woocommerce_checkout_create_order_line_item',  $plugin_public, 'wcgb_store_address_to_item', 10, 4 );

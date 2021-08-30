@@ -505,7 +505,9 @@ class Woocommerce_Gift_Box_Public {
 		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
 		$gb_key = isset($formData['gb_key']) && $formData['gb_key'] != '' ? $formData['gb_key'] : '' ;
 		$gw_key = isset($formData['gw_key']) && $formData['gw_key'] != '' ? $formData['gw_key'] : '' ;
-		$products = isset($formData['products']) ? $formData['products'] : [] ;
+		$products = ( is_null($formData['products']) == 0) ? $formData['products'] : [] ;
+
+		var_dump($formData['products']);
 		
 		//$old_gb_ckey = isset($formData['old_gb_ckey']) && $formData['old_gb_ckey'] != '' ? $formData['old_gb_ckey'] : '' ;
 	
@@ -552,12 +554,10 @@ class Woocommerce_Gift_Box_Public {
 			
 
 			wp_send_json_success();
-            wp_die();
+             wp_die();
 
 		}
-
-		wp_send_json_success();
-		wp_die();
+		
 
 	}
 
@@ -749,7 +749,7 @@ class Woocommerce_Gift_Box_Public {
 
 		$wcgb_packages = WC()->session->get('wcgb_packages');
 		$current_package = WC()->session->get('wcgb_current_package');
-		$wcgb_wraps = WC()->session->set( 'wcgb_wraps');
+		$wcgb_wraps = WC()->session->get( 'wcgb_wraps');
 
 		if(  !$wcgb_packages && !$current_package ){
 			

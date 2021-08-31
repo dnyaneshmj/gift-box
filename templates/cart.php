@@ -34,29 +34,29 @@ do_action( 'woocommerce_before_cart' );
                     old_gb_ckey: old_gb_ckey
                 };
 
-                jQuery.ajax({
-                    url: ajaxurl,
-                    type: 'post',
-                    data: {
-                        formData: formData,
-                        // security: check_ref,
-                        dataType: "json",
-                        encode: true,
-                        action: 'wcgb_change_gb_in_cart'
-                    },
-                    error: function(response) {
-                        console.log(response);
-                    },
-                    success: function(response) {
+                // jQuery.ajax({
+                //     url: ajaxurl,
+                //     type: 'post',
+                //     data: {
+                //         formData: formData,
+                //         // security: check_ref,
+                //         dataType: "json",
+                //         encode: true,
+                //         action: 'wcgb_change_gb_in_cart'
+                //     },
+                //     error: function(response) {
+                //         console.log(response);
+                //     },
+                //     success: function(response) {
                         
-                        if (response.success) {
-                            window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+                //         if (response.success) {
+                //             window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
 
-                        } else {
+                //         } else {
                             
-                        }
-                    }
-                });
+                //         }
+                //     }
+                // });
             }
 
             function changeGiftWrap( package, new_gw_id, old_gw_id,old_gw_ckey ) {
@@ -69,29 +69,29 @@ do_action( 'woocommerce_before_cart' );
                     old_gw_ckey: old_gw_ckey
                 };
 
-                jQuery.ajax({
-                    url: ajaxurl,
-                    type: 'post',
-                    data: {
-                        formData: formData,
-                        // security: check_ref,
-                        dataType: "json",
-                        encode: true,
-                        action: 'wcgb_change_gw_in_cart'
-                    },
-                    error: function(response) {
-                        console.log(response);
-                    },
-                    success: function(response) {
+                // jQuery.ajax({
+                //     url: ajaxurl,
+                //     type: 'post',
+                //     data: {
+                //         formData: formData,
+                //         // security: check_ref,
+                //         dataType: "json",
+                //         encode: true,
+                //         action: 'wcgb_change_gw_in_cart'
+                //     },
+                //     error: function(response) {
+                //         console.log(response);
+                //     },
+                //     success: function(response) {
                         
-                        if (response.success) {
-                            window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+                //         if (response.success) {
+                //             window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
 
-                        } else {
+                //         } else {
                             
-                        }
-                    }
-                });
+                //         }
+                //     }
+                // });
             }
     </script>
 <!-- </div> -->
@@ -199,9 +199,8 @@ do_action( 'woocommerce_before_cart' );
                                 $showButtons = false;
 
                                 foreach($wcgb_packages as $package => $data){ 
-                                    //echo $package;
-                                    //echo get_the_title( $package_product );
-                                    if( empty( $data )) {
+            
+                                    if( !isset($data['product_id']) && $data['product_id'] == '' ) {
                                         $current_package_count++;
                                         continue;
                                     }
@@ -777,8 +776,7 @@ do_action( 'woocommerce_before_cart' );
                 products.push(jQuery(this).data('cikey'));
             }).get();
       
-            products = (products  !== "undefined")? products : [];
-       
+            products = (products !== "undefined")? products : [];
 
             var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
                     
@@ -805,8 +803,8 @@ do_action( 'woocommerce_before_cart' );
                 success: function(response) {
                     
                     if (response.success) {
+                        window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
                       
-                       
 
                     } else {
                         
@@ -814,11 +812,11 @@ do_action( 'woocommerce_before_cart' );
                 }
             });
             
-            setTimeout(function(){ 
-                window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+           
+            // setTimeout(function(){ 
+            //     window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
 
-            }, 2000);
-
+            // }, 2000);
           
         
         });    
@@ -913,6 +911,11 @@ do_action( 'woocommerce_before_cart' );
                 }
                 
             });  
+
+            // setTimeout(function(){ 
+            //     window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+
+            // }, 2000);
 
         });
         

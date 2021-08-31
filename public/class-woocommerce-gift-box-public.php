@@ -251,9 +251,9 @@ class Woocommerce_Gift_Box_Public {
 		if( $basename == 'cart.php' ) {
 			$template =  WOOCOMMERCE_GIFT_BOX_PATH . 'templates/cart.php';
 		}
-		if( $basename == 'mini-cart.php' ) {
-			$template =  WOOCOMMERCE_GIFT_BOX_PATH . 'templates/mini-cart.php';
-		}
+		// if( $basename == 'mini-cart.php' ) {
+		// 	$template =  WOOCOMMERCE_GIFT_BOX_PATH . 'templates/mini-cart.php';
+		// }
 		return $template;
 	
 	}
@@ -506,16 +506,21 @@ class Woocommerce_Gift_Box_Public {
 
 	public function wcgb_remove_packages_from_cart(){
 		
+
 		$formData = $_POST['formData'];
 		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
 		$gb_key = isset($formData['gb_key']) && $formData['gb_key'] != '' ? $formData['gb_key'] : '' ;
 		$gw_key = isset($formData['gw_key']) && $formData['gw_key'] != '' ? $formData['gw_key'] : '' ;
-		$products = ( is_null($formData['products']) == 0) ? $formData['products'] : [] ;
+		$products = ( is_null($formData['products']) == 0 ) ? $formData['products'] : [] ;
+
+		//var_dump($gb_key);die;
 		
 		//$old_gb_ckey = isset($formData['old_gb_ckey']) && $formData['old_gb_ckey'] != '' ? $formData['old_gb_ckey'] : '' ;
 	
 
 		if( $package && $gb_key ){
+			
+			//
 
 			$wcgb_packages = WC()->session->get('wcgb_packages');
 			$current_package = WC()->session->get('wcgb_current_package');
@@ -524,27 +529,35 @@ class Woocommerce_Gift_Box_Public {
 			$wcgb_wraps = WC()->session->get('wcgb_wraps');
 			
 
-			if($wcgb_packages[$package]){
+			if( $wcgb_packages[$package] ){
 				
 				$removed = WC()->cart->remove_cart_item( $gb_key );
 				$removed = WC()->cart->remove_cart_item( $gw_key );
 				
 
-				$wcgb_packages[$package] = [];
+				$wcgb_packages[$package] = [''];
 				WC()->session->set('wcgb_packages', $wcgb_packages );
 
 				// end($wcgb_packages);
 				// $key = key($wcgb_packages);
 				// WC()->session->set('wcgb_current_package', $current_package );
 
-				unset($wcgb_notes[$package]);
-				WC()->session->set('wcgb_notes', $wcgb_notes );
-				
-				unset($wcgb_address[$package]);
-				WC()->session->set('wcgb_address', $wcgb_address );
+				// if( isset($wcgb_notes[$package]) ){
+				// 	unset($wcgb_notes[$package]);
+				// 	WC()->session->set('wcgb_notes', $wcgb_notes );
+				// }
 
-				$wcgb_wraps[$package] = [];
-				WC()->session->set('wcgb_wraps', $wcgb_wraps );
+				// if( isset($wcgb_address[$package]) ){
+				// 	unset($wcgb_address[$package]);
+				// 	WC()->session->set('wcgb_address', $wcgb_address );
+				// }
+
+				// if( isset($wcgb_wraps[$package]) ){
+				// 	$wcgb_wraps[$package] = [];
+				// 	WC()->session->set('wcgb_wraps', $wcgb_wraps );
+				// }
+
+				
 
 			}			
 			
@@ -556,7 +569,7 @@ class Woocommerce_Gift_Box_Public {
 				
 			
 
-			wp_send_json_success();
+			wp_send_json_success($wcgb_packages);
              wp_die();
 
 		}
@@ -582,17 +595,23 @@ class Woocommerce_Gift_Box_Public {
 			
 			$wcgb_address = WC()->session->get('wcgb_address');
 
-			if(!empty($wcgb_address) && !isset( $wcgb_address[$package]) ){
+			
+			if( $wcgb_address != '' && !empty($wcgb_address) && !isset( $wcgb_address[$package]) ){
+
 				$wcgb_address = array_merge($wcgb_address, [  $package => ['full_name' => $full_name,'comp_name' => $comp_name,'email' => $email,'phone' => $phone,'address' => $address ] ]);
+
 			}else{
-				$wcgb_address[$package] = ['full_name' => $full_name,'comp_name' => $comp_name,'email' => $email,'phone' => $phone,'address' => $address ];
+				$wcgb_address = [];
+				$wcgb_address = [ $package => ['full_name' => $full_name,'comp_name' => $comp_name,'email' => $email,'phone' => $phone,'address' => $address ] ];
+
 			}
 			
 			//var_dump($wcgb_address);
 			WC()->session->set('wcgb_address', $wcgb_address );
+			
 			$wcgb_address = WC()->session->get('wcgb_address');
 			//var_dump($wcgb_address);
-			 wp_send_json_success();
+			 wp_send_json_success($wcgb_address);
              wp_die();
 
 		}
@@ -629,16 +648,12 @@ class Woocommerce_Gift_Box_Public {
 
 			
 			$wcgb_notes = WC()->session->get('wcgb_notes');
-			// if(!empty($wcgb_notes)){
-			// 	$wcgb_notes = array_merge($wcgb_notes, [  $package => $note ]);
-			// }else{
-				$wcgb_notes[$package] = $note;
-			//}
 		
-			if(!empty($wcgb_notes) && !isset( $wcgb_notes[$package] ) ){
-				$wcgb_notes = array_merge($wcgb_notes, [  $package => [$note] ]);
+			if($wcgb_notes != '' &&  !empty($wcgb_notes) && !isset( $wcgb_notes[$package] ) ){
+				$wcgb_notes = array_merge($wcgb_notes, [  $package => $note ]);
 			}else{
-				$wcgb_address[$package] = [$note ];
+				$wcgb_notes=[];
+				$wcgb_notes = [ $package => $note ];
 			}
 
 			WC()->session->set('wcgb_notes', $wcgb_notes );
@@ -741,6 +756,22 @@ class Woocommerce_Gift_Box_Public {
 	}
 
 	public function wcgb_get_popup_parameter(){
+		
+		// if(is_admin() || wp_doing_ajax())
+		// 	return;
+
+		// $wcgb_packages = WC()->session->get('wcgb_packages');
+		// $current_package = WC()->session->get('wcgb_current_package');
+		// $wcgb_wraps = WC()->session->get('wcgb_wraps');
+		// $wcgb_notes = WC()->session->get('wcgb_notes');
+		// $wcgb_address = WC()->session->get('wcgb_address');
+		// var_dump($wcgb_packages );
+		// echo'---------------------------------------------';
+		// var_dump($current_package );
+		// echo'---------------------------------------------';
+		// var_dump($wcgb_notes );
+		// echo'---------------------------------------------';
+		// var_dump($wcgb_address );
 
 		if (isset($_GET['op']) && $_GET['op'] == 1) {
 			
@@ -748,7 +779,7 @@ class Woocommerce_Gift_Box_Public {
 		  } 
 	}
 
-	public function wcgb_reset_session(){
+	public function wcgb_reset_session($order_id){
 		WC()->session->set('wcgb_packages', '' );
 		WC()->session->set('wcgb_current_package',  '' );
 	    WC()->session->set('wcgb_wraps', '');

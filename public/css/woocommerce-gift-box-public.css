@@ -3,7 +3,9 @@
  * included in this file.
  */
 
-
+ .hidden{
+   display: none;
+ }
  .gf-row .cart-left {
     width: 40%;
 }

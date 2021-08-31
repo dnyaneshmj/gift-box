@@ -118,7 +118,10 @@ do_action( 'woocommerce_before_cart' );
                         $wcgb_packages = WC()->session->get('wcgb_packages');
                         $current_package = WC()->session->get('wcgb_current_package');
                         $wcgb_wraps = WC()->session->get('wcgb_wraps');
-                        //var_dump(WC()->session);
+                        $wcgb_notes = WC()->session->get('wcgb_notes');
+                        $wcgb_address = WC()->session->get('wcgb_address');
+                        // var_dump($wcgb_notes );
+                        // var_dump($wcgb_address );
                         
 
                             // if( isset($_POST['new_box']) ){
@@ -141,9 +144,9 @@ do_action( 'woocommerce_before_cart' );
                                 
                             // }
 
-                            var_dump($wcgb_packages); 
-                            var_dump($current_package); 
-                            var_dump($wcgb_wraps); 
+                            // var_dump($wcgb_packages); 
+                            // var_dump($current_package); 
+                            // var_dump($wcgb_wraps); 
                             
                             //die;
                         
@@ -228,7 +231,7 @@ do_action( 'woocommerce_before_cart' );
                                             <div class="cb-pack-rec">
                                                 <?php 
                                                     $label = 'Add Receipient';
-                                                    $wcgb_address = WC()->session->get('wcgb_address');
+                                                    
                                                     if(isset( $wcgb_address[$package] ) ){
                                                         $address = $wcgb_address[$package];
                                                         $label =  $address['full_name'];
@@ -302,9 +305,6 @@ do_action( 'woocommerce_before_cart' );
                                                 
                                                 if($product['package'] != $package ) continue;
                                                 
-                                                
-                                                $has_greeting = (get_post_meta( $product_id, 'is_greeting_card', true ) == 'true')? true : false;
-
                                                 $is_have_product = true; 
 
                                                 $cart_item = $product['cart_item'];
@@ -312,6 +312,8 @@ do_action( 'woocommerce_before_cart' );
 
                                                 $_product   = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
                                                 $product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
+                                                
+                                                $has_greeting = (get_post_meta( $product_id, 'is_greeting_card', true ) == 'true')? true : false;
 
                                                 ?>
 
@@ -429,7 +431,7 @@ do_action( 'woocommerce_before_cart' );
                                             }
 
                                             
-                                        if( $is_have_product && !$has_greeting && get_option( 'wcgb_greeting_id') && ($current_count ) <= 1  ){ ?>
+                                        if( $is_have_product && !$has_greeting && get_option( 'wcgb_greeting_id') && ($current_count ) == 0  ){ ?>
                                                 <div class="gf-row">
                                                     <a href="<?php echo esc_url( get_permalink( get_option( 'wcgb_greeting_id') ) ); ?>" class="button" > Add Greeting card! </a>
                                                 </div>
@@ -505,8 +507,7 @@ do_action( 'woocommerce_before_cart' );
 
                                                 <?php 
                                                         $note = '';
-                                                        $wcgb_notes = WC()->session->get('wcgb_notes');
-                                                    
+                                                        
                                                         if(isset( $wcgb_notes[$package] ) ){
                                                             $note = $wcgb_notes[$package];
                                                         
@@ -805,7 +806,7 @@ do_action( 'woocommerce_before_cart' );
                     
                     if (response.success) {
                       
-                        window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+                       
 
                     } else {
                         
@@ -813,6 +814,12 @@ do_action( 'woocommerce_before_cart' );
                 }
             });
             
+            setTimeout(function(){ 
+                window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+
+            }, 2000);
+
+          
         
         });    
 
@@ -912,11 +919,14 @@ do_action( 'woocommerce_before_cart' );
         jQuery('.save-note').on('click', function(event) {
             event.preventDefault();
 
-            jQuery('.wcgb-loading').show();
+            //jQuery('.wcgb-loading').show();
             
             var package = jQuery(this).data('package');
 
             var note = jQuery('textarea[data-package="'+package+'"]').val();
+
+            // alert(note);
+            // return false;
             
             var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
     

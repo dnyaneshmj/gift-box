@@ -213,6 +213,7 @@ class Woocommerce_Gift_Box_Admin {
 			$product_id = $product->get_id();
 			$is_gift_box = get_post_meta( $product_id, 'is_gift_box', true );
 			if($is_gift_box){ 
+				
 				$address = $item->get_meta('address');
 				echo "Address for ".$item->get_meta('package');
 			?>

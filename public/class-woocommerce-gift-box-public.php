@@ -311,6 +311,8 @@ class Woocommerce_Gift_Box_Public {
 			
 		if($is_gift_box == true){
 			
+			$wrap_id = $this->get_lowest_cost_product('is_gift_wrap');
+
 			if($cart_item_data['update_package']){
 				
 				$package = $cart_item_data['package'];
@@ -318,17 +320,20 @@ class Woocommerce_Gift_Box_Public {
 				WC()->session->set('wcgb_packages', $wcgb_packages );
 
 			}elseif(  !$wcgb_packages && !$current_package ){
-				$wrap_id = $this->get_lowest_cost_product('is_gift_wrap');
 				
+				WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' => 'package1'  ) );
 				WC()->session->set('wcgb_packages', [ 'package1' => ['product_id' => $product_id,'cart_item_key' => $cart_item_key ]] );
 				WC()->session->set('wcgb_current_package', 'package1' );
-				WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' => 'package1'  ) );
+				
 
 			}else{
 
 				$currentPackageCount = count($wcgb_packages ) + 1;
                 $current_package = 'package'.$currentPackageCount;
                 $wcgb_packages = array_merge($wcgb_packages, [  $current_package => ['product_id' => $product_id,'cart_item_key' => $cart_item_key ] ]);
+				
+				WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' => $current_package  ) );
+				
 				WC()->session->set('wcgb_packages', $wcgb_packages );
 				WC()->session->set('wcgb_current_package', $current_package );
 				
@@ -506,8 +511,6 @@ class Woocommerce_Gift_Box_Public {
 		$gb_key = isset($formData['gb_key']) && $formData['gb_key'] != '' ? $formData['gb_key'] : '' ;
 		$gw_key = isset($formData['gw_key']) && $formData['gw_key'] != '' ? $formData['gw_key'] : '' ;
 		$products = ( is_null($formData['products']) == 0) ? $formData['products'] : [] ;
-
-		var_dump($formData['products']);
 		
 		//$old_gb_ckey = isset($formData['old_gb_ckey']) && $formData['old_gb_ckey'] != '' ? $formData['old_gb_ckey'] : '' ;
 	
@@ -567,26 +570,30 @@ class Woocommerce_Gift_Box_Public {
 		$formData = $_POST['formData'];
 		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
 		$full_name = isset($formData['full_name']) && $formData['full_name'] != '' ? $formData['full_name'] : '' ;
-		$comp_name = isset($formData['comp_name']) && $formData['comp_name']  ? $formData['comp_name'] : [] ;
+		$comp_name = isset($formData['comp_name']) && $formData['comp_name']  ? $formData['comp_name'] : '' ;
 		$email = isset($formData['email']) && $formData['email'] != '' ? $formData['email'] : '' ;
 		$phone = isset($formData['phone']) && $formData['phone'] != '' ? $formData['phone'] : '' ;
-		$address = isset($formData['address']) && $formData['address']  ? $formData['address'] : [] ;
+		$address = isset($formData['address']) && $formData['address']  ? $formData['address'] : '' ;
+
+		//var_dump($formData );
 
 		if( $package ){
 
 			
 			$wcgb_address = WC()->session->get('wcgb_address');
-			if(!empty($wcgb_address)){
+
+			if(!empty($wcgb_address) && !isset( $wcgb_address[$package]) ){
 				$wcgb_address = array_merge($wcgb_address, [  $package => ['full_name' => $full_name,'comp_name' => $comp_name,'email' => $email,'phone' => $phone,'address' => $address ] ]);
 			}else{
 				$wcgb_address[$package] = ['full_name' => $full_name,'comp_name' => $comp_name,'email' => $email,'phone' => $phone,'address' => $address ];
 			}
 			
-			
+			//var_dump($wcgb_address);
 			WC()->session->set('wcgb_address', $wcgb_address );
-		
-			wp_send_json_success();
-            wp_die();
+			$wcgb_address = WC()->session->get('wcgb_address');
+			//var_dump($wcgb_address);
+			 wp_send_json_success();
+             wp_die();
 
 		}
 
@@ -616,7 +623,8 @@ class Woocommerce_Gift_Box_Public {
 		$formData = $_POST['formData'];
 		$package = isset($formData['package']) && $formData['package'] != '' ? $formData['package'] : '' ;
 		$note = isset($formData['note']) && $formData['note'] != '' ? $formData['note'] : '' ;
-		
+		//var_dump($package);die;
+
 		if( $package ){
 
 			
@@ -627,7 +635,12 @@ class Woocommerce_Gift_Box_Public {
 				$wcgb_notes[$package] = $note;
 			//}
 		
-			
+			if(!empty($wcgb_notes) && !isset( $wcgb_notes[$package] ) ){
+				$wcgb_notes = array_merge($wcgb_notes, [  $package => [$note] ]);
+			}else{
+				$wcgb_address[$package] = [$note ];
+			}
+
 			WC()->session->set('wcgb_notes', $wcgb_notes );
 		
 			wp_send_json_success();

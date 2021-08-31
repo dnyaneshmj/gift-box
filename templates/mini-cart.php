@@ -537,176 +537,176 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
 
                 <script>
 
-                    jQuery(document).ready(function() {
+                    // jQuery(document).ready(function() {
 
                        
-                        jQuery('.save-note').on('click', function(event) {
-                            event.preventDefault();
+                    //     jQuery('.save-note').on('click', function(event) {
+                    //         event.preventDefault();
 
-                            jQuery('html, body, .save-note').css("cursor", "wait"); 
+                    //         jQuery('html, body, .save-note').css("cursor", "wait"); 
                             
-                            var package = jQuery(this).data('package');
+                    //         var package = jQuery(this).data('package');
 
-                            var note = jQuery('textarea[data-package="'+package+'"]').val();
+                    //         var note = jQuery('textarea[data-package="'+package+'"]').val();
                            
-                            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+                    //         var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
                     
-                            var formData = {
-                                package: package,
-                                note: note
-                            };
+                    //         var formData = {
+                    //             package: package,
+                    //             note: note
+                    //         };
                 
-                            jQuery.ajax({
-                                url: ajaxurl,
-                                type: 'post',
-                                data: {
-                                    formData: formData,
-                                    dataType: "json",
-                                    encode: true,
-                                    action: 'wcgb_save_note_of_package'
-                                },
-                                error: function(response) {
-                                    console.log(response);
-                                },
-                                success: function(response) {
+                    //         jQuery.ajax({
+                    //             url: ajaxurl,
+                    //             type: 'post',
+                    //             data: {
+                    //                 formData: formData,
+                    //                 dataType: "json",
+                    //                 encode: true,
+                    //                 action: 'wcgb_save_note_of_package'
+                    //             },
+                    //             error: function(response) {
+                    //                 console.log(response);
+                    //             },
+                    //             success: function(response) {
                                     
-                                    if (response.success) {
+                    //                 if (response.success) {
   
-                                    } else {
+                    //                 } else {
                                        
-                                    }
-                                    jQuery('html, body').css("cursor", "default");   
-                                    jQuery('.save-note').removeAttr("style")
+                    //                 }
+                    //                 jQuery('html, body').css("cursor", "default");   
+                    //                 jQuery('.save-note').removeAttr("style")
                                     
                                    
-                                }
+                    //             }
                                 
-                            });
+                    //         });
                 
                             
                             
                       
-                        });
+                    //     });
 
-                        jQuery('.btnOpenForm').on('click', function(event) {
-                            event.preventDefault();
+                    //     jQuery('.btnOpenForm').on('click', function(event) {
+                    //         event.preventDefault();
 
-                            jQuery('html, body, .btnOpenForm').css("cursor", "wait"); 
+                    //         jQuery('html, body, .btnOpenForm').css("cursor", "wait"); 
                           
 
-                            var package = jQuery(this).data('package');
-                            jQuery('.form-popup-bg #package-id').val(package);
+                    //         var package = jQuery(this).data('package');
+                    //         jQuery('.form-popup-bg #package-id').val(package);
                             
                             
 
-                            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+                    //         var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
                     
-                            var formData = {
-                                package: package,
-                            };
+                    //         var formData = {
+                    //             package: package,
+                    //         };
                 
-                            jQuery.ajax({
-                                url: ajaxurl,
-                                type: 'post',
-                                data: {
-                                    formData: formData,
-                                    dataType: "json",
-                                    encode: true,
-                                    action: 'wcgb_get_address_of_package'
-                                },
-                                error: function(response) {
-                                    console.log(response);
-                                },
-                                success: function(response) {
+                    //         jQuery.ajax({
+                    //             url: ajaxurl,
+                    //             type: 'post',
+                    //             data: {
+                    //                 formData: formData,
+                    //                 dataType: "json",
+                    //                 encode: true,
+                    //                 action: 'wcgb_get_address_of_package'
+                    //             },
+                    //             error: function(response) {
+                    //                 console.log(response);
+                    //             },
+                    //             success: function(response) {
                                     
-                                    if (response.success) {
+                    //                 if (response.success) {
                                         
-                                        jQuery('#package-fname').val(response.data.full_name);
-                                        jQuery('#package-cname').val(response.data.comp_name);
-                                        jQuery('#package-email').val(response.data.email);
-                                        jQuery('#package-phone').val(response.data.phone);
-                                        jQuery('#package-address').val(response.data.address);
+                    //                     jQuery('#package-fname').val(response.data.full_name);
+                    //                     jQuery('#package-cname').val(response.data.comp_name);
+                    //                     jQuery('#package-email').val(response.data.email);
+                    //                     jQuery('#package-phone').val(response.data.phone);
+                    //                     jQuery('#package-address').val(response.data.address);
 
 
-                                        jQuery('.form-popup-bg').addClass('is-visible');
-                                    } else {
-                                        jQuery('.form-popup-bg').addClass('is-visible');
-                                    }
-                                    jQuery('html, body').css("cursor", "default");   
-                                    jQuery('.btnOpenForm').removeAttr("style")
+                    //                     jQuery('.form-popup-bg').addClass('is-visible');
+                    //                 } else {
+                    //                     jQuery('.form-popup-bg').addClass('is-visible');
+                    //                 }
+                    //                 jQuery('html, body').css("cursor", "default");   
+                    //                 jQuery('.btnOpenForm').removeAttr("style")
                                     
                                    
-                                }
+                    //             }
                                 
-                            });
+                    //         });
                 
                             
                             
                       
-                        });
+                    //     });
                     
-                        //close popup when clicking x or off popup
-                        jQuery('.form-popup-bg').on('click', function(event) {
-                            if (jQuery(event.target).is('.form-popup-bg') || jQuery(event.target).is('#btnCloseForm')) {
-                                event.preventDefault();
-                                jQuery(this).removeClass('is-visible');
-                            }
-                        });
+                    //     //close popup when clicking x or off popup
+                    //     jQuery('.form-popup-bg').on('click', function(event) {
+                    //         if (jQuery(event.target).is('.form-popup-bg') || jQuery(event.target).is('#btnCloseForm')) {
+                    //             event.preventDefault();
+                    //             jQuery(this).removeClass('is-visible');
+                    //         }
+                    //     });
 
-                        jQuery('#wcgb-user-package-address').submit(function (e) {
-                            e.preventDefault();
+                    //     jQuery('#wcgb-user-package-address').submit(function (e) {
+                    //         e.preventDefault();
                             
-                            jQuery('html, body, #wcgb-user-package-address').css("cursor", "wait"); 
+                    //         jQuery('html, body, #wcgb-user-package-address').css("cursor", "wait"); 
 
-                            var full_name = jQuery('#package-fname').val();
-                            var comp_name = jQuery('#package-cname').val();
-                            var email = jQuery('#package-email').val();
-                            var phone = jQuery('#package-phone').val();
-                            var address = jQuery('#package-address').val();
-                            var package = jQuery('.form-popup-bg #package-id').val();
+                    //         var full_name = jQuery('#package-fname').val();
+                    //         var comp_name = jQuery('#package-cname').val();
+                    //         var email = jQuery('#package-email').val();
+                    //         var phone = jQuery('#package-phone').val();
+                    //         var address = jQuery('#package-address').val();
+                    //         var package = jQuery('.form-popup-bg #package-id').val();
 
-                            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+                    //         var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
                     
-                            var formData = {
-                                package: package,
-                                full_name: full_name,
-                                comp_name: comp_name,
-                                email: email,
-                                phone: phone,
-                                address: address,
-                            };
+                    //         var formData = {
+                    //             package: package,
+                    //             full_name: full_name,
+                    //             comp_name: comp_name,
+                    //             email: email,
+                    //             phone: phone,
+                    //             address: address,
+                    //         };
                 
-                            jQuery.ajax({
-                                url: ajaxurl,
-                                type: 'post',
-                                data: {
-                                    formData: formData,
-                                    // security: check_ref,
-                                    dataType: "json",
-                                    encode: true,
-                                    action: 'wcgb_add_address_to_package'
-                                },
-                                error: function(response) {
-                                    console.log(response);
-                                },
-                                success: function(response) {
-                                    console.log(response);
+                    //         jQuery.ajax({
+                    //             url: ajaxurl,
+                    //             type: 'post',
+                    //             data: {
+                    //                 formData: formData,
+                    //                 // security: check_ref,
+                    //                 dataType: "json",
+                    //                 encode: true,
+                    //                 action: 'wcgb_add_address_to_package'
+                    //             },
+                    //             error: function(response) {
+                    //                 console.log(response);
+                    //             },
+                    //             success: function(response) {
+                    //                 console.log(response);
 
-                                    if (response.success) {
-                                        jQuery('.btnOpenForm[data-package="'+package+'"]').html(full_name);
-                                        jQuery('.form-popup-bg').removeClass('is-visible');
-                                    } else {
+                    //                 if (response.success) {
+                    //                     jQuery('.btnOpenForm[data-package="'+package+'"]').html(full_name);
+                    //                     jQuery('.form-popup-bg').removeClass('is-visible');
+                    //                 } else {
                                         
-                                    }
-                                    jQuery('html, body').css("cursor", "default");   
-                                    jQuery('#wcgb-user-package-address').removeAttr("style")
-                                }
-                            });
+                    //                 }
+                    //                 jQuery('html, body').css("cursor", "default");   
+                    //                 jQuery('#wcgb-user-package-address').removeAttr("style")
+                    //             }
+                    //         });
 
                             
                             
-                        });
-                    });                        
+                    //     });
+                    // });                        
                 </script>
 
             </div>
@@ -722,64 +722,64 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
         jQuery('.form-popup-bg').removeClass('is-visible');
     }
 
-    jQuery(document).ready(function($) {
+    // jQuery(document).ready(function($) {
 
-        jQuery('.delete-package').on('click', function(e) {
+    //     jQuery('.delete-package').on('click', function(e) {
 			
-			jQuery('html, body, .delete-package').css("cursor", "wait"); 
+	// 		jQuery('html, body, .delete-package').css("cursor", "wait"); 
 
-            e.preventDefault();
-            var package = jQuery(this).data('package');
-            var gb_key = jQuery(this).data('gb-ckey');
-            var gb_id = jQuery(this).data('gb-id');
-            var gw_id = jQuery('#gw-ckey').val();
+    //         e.preventDefault();
+    //         var package = jQuery(this).data('package');
+    //         var gb_key = jQuery(this).data('gb-ckey');
+    //         var gb_id = jQuery(this).data('gb-id');
+    //         var gw_id = jQuery('#gw-ckey').val();
 
            
 
-            var products = [];
-            jQuery(".delete-"+package).map(function() {
-                products.push(jQuery(this).data('cikey'));
-            }).get();
+    //         var products = [];
+    //         jQuery(".delete-"+package).map(function() {
+    //             products.push(jQuery(this).data('cikey'));
+    //         }).get();
 
 
-            var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
+    //         var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
                     
-            var formData = {
-                package: package,
-                gb_key: gb_key,
-                gw_key: gw_id,
-                products: products,
-            };
+    //         var formData = {
+    //             package: package,
+    //             gb_key: gb_key,
+    //             gw_key: gw_id,
+    //             products: products,
+    //         };
 
-            jQuery.ajax({
-                url: ajaxurl,
-                type: 'post',
-                data: {
-                    formData: formData,
-                    // security: check_ref,
-                    dataType: "json",
-                    encode: true,
-                    action: 'wcgb_remove_pkg_from_cart'
-                },
-                error: function(response) {
-                    console.log(response);
-                },
-                success: function(response) {
+    //         jQuery.ajax({
+    //             url: ajaxurl,
+    //             type: 'post',
+    //             data: {
+    //                 formData: formData,
+    //                 // security: check_ref,
+    //                 dataType: "json",
+    //                 encode: true,
+    //                 action: 'wcgb_remove_pkg_from_cart'
+    //             },
+    //             error: function(response) {
+    //                 console.log(response);
+    //             },
+    //             success: function(response) {
                     
-                    if (response.success) {
-                        window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+    //                 if (response.success) {
+    //                     window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
 
-                    } else {
+    //                 } else {
                         
-                    }
-                }
-				jQuery('html, body').css("cursor", "default");   
-                jQuery('.delete-package').removeAttr("style")
-            });
+    //                 }
+    //             }
+	// 			jQuery('html, body').css("cursor", "default");   
+    //             jQuery('.delete-package').removeAttr("style")
+    //         });
             
         
-        });    
+    //     });    
 
-    });
+    // });
 
 </script>

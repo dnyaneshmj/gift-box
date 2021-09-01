@@ -1,10 +1,8 @@
 <?php
 /**
- * Mini-cart
+ * Checkout coupon form
  *
- * Contains the markup for the mini-cart, used by the cart widget.
- *
- * This template can be overridden by copying it to yourtheme/woocommerce/cart/mini-cart.php.
+ * This template can be overridden by copying it to yourtheme/woocommerce/checkout/form-coupon.php.
  *
  * HOWEVER, on occasion WooCommerce will need to update template files and you
  * (the theme developer) will need to copy the new files to your theme to
@@ -12,154 +10,41 @@
  * happen. When this occurs the version of the template file will be bumped and
  * the readme will list any important changes.
  *
- * @see     https://docs.woocommerce.com/document/template-structure/
- * @package WooCommerce\Templates
- * @version 5.2.0
+ * @see https://docs.woocommerce.com/document/template-structure/
+ * @package WooCommerce/Templates
+ * @version 3.4.4
  */
 
 defined( 'ABSPATH' ) || exit;
 
-do_action( 'woocommerce_before_mini_cart' ); ?>
-
-<style>
-    /* The Modal (background) */
-.modal {
-  position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
-  left: 0;
-  top: 0;
-  width: 100%; /* Full width */
-  height: 100%; /* Full height */
-  overflow: auto; /* Enable scroll if needed */
-  background-color: rgb(0,0,0); /* Fallback color */
-  background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+if ( ! wc_coupons_enabled() ) { // @codingStandardsIgnoreLine.
+	return;
 }
 
-/* Modal Content/Box */
-.modal-content {
-  background-color: #fefefe;
-  margin: 15% auto; /* 15% from the top and centered */
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%; /* Could be more or less, depending on screen size */
-}
-
-/* The Close Button */
-.close {
-  color: #aaa;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
-}
-
-.close:hover,
-.close:focus {
-  color: black;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-</style>
-
-
-<script>
-           function changeMiniCartGiftBox( package, new_gb_id, old_gb_id,old_gb_ckey ) {
-                var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
-                    
-                var formData = {
-                    package: package,
-                    new_gb_id: new_gb_id,
-                    old_gb_id: old_gb_id,
-                    old_gb_ckey: old_gb_ckey
-                };
-
-                jQuery.ajax({
-                    url: ajaxurl,
-                    type: 'post',
-                    data: {
-                        formData: formData,
-                        // security: check_ref,
-                        dataType: "json",
-                        encode: true,
-                        action: 'wcgb_change_gb_in_cart'
-                    },
-                    error: function(response) {
-                        console.log(response);
-                    },
-                    success: function(response) {
-                        
-                        if (response.success) {
-                            window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
-
-                        } else {
-                            
-                        }
-                    }
-                });
-            }
-
-            function changeMiniCartGiftWrap( package, new_gw_id, old_gw_id,old_gw_ckey ) {
-                var ajaxurl = "<?php echo admin_url('admin-ajax.php'); ?>";
-                    
-                var formData = {
-                    package: package,
-                    new_gw_id: new_gw_id,
-                    old_gw_id: old_gw_id,
-                    old_gw_ckey: old_gw_ckey
-                };
-
-                jQuery.ajax({
-                    url: ajaxurl,
-                    type: 'post',
-                    data: {
-                        formData: formData,
-                        // security: check_ref,
-                        dataType: "json",
-                        encode: true,
-                        action: 'wcgb_change_gw_in_cart'
-                    },
-                    error: function(response) {
-                        console.log(response);
-                    },
-                    success: function(response) {
-                        
-                        if (response.success) {
-                            window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
-
-                        } else {
-                            
-                        }
-                    }
-                });
-            }
-    </script>
-
-<?php
-
-if (!isset($args) || !isset($args['list_class'])) {
-	$args['list_class'] = '';
-}
-$cart_list_sub_classes = array();
-$cart_list_sub_classes[] = 'cart_list_wrapper';
-if ( ! WC()->cart->is_empty() ) {
-	$cart_list_sub_classes[] = 'has-cart';
-}
-$cart_list_sub_class = implode(' ',$cart_list_sub_classes);
-$opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_button', array(
-	'view-cart' => '1',
-	'checkout' => '1',
-));
+$info_message = apply_filters( 'woocommerce_checkout_coupon_message', esc_html__( 'Have a coupon?', 'g5plus-handmade' ) . ' <a href="#" class="showcoupon">' . esc_html__( 'Click here to enter your code', 'g5plus-handmade' ) . '</a>' );
+//wc_print_notice( $info_message, 'notice' );
 ?>
-
-<div class="widget_shopping_cart_icon">
-	<i class="wicon fa fa-shopping-cart"></i>
-	<span class="total"><?php echo count( WC()->cart->get_cart()); ?></span>
+<?php if (empty( WC()->cart->applied_coupons )): ?>
+<div class="woocommerce-checkout-info">
+	<?php echo wp_kses_post($info_message); ?>
 </div>
-<div class="sub-total-text"><?php echo WC()->cart->get_cart_subtotal(); ?></div>
-<div class="<?php echo esc_attr($cart_list_sub_class) ?>">
+<?php endif; ?>
+<form class="checkout_coupon" method="post" style="display:none">
+
+	<p class="form-row form-row-first">
+		<input type="text" name="coupon_code" class="input-text" placeholder="<?php esc_attr_e( 'Coupon code', 'g5plus-handmade' ); ?>" id="coupon_code" value="" />
+	</p>
+
+	<p class="form-row form-row-last">
+		<input type="submit" class="button" name="apply_coupon" value="<?php esc_attr_e( 'Apply Coupon', 'g5plus-handmade' ); ?>" />
+	</p>
+
+	<div class="clear"></div>
+</form>
 
 <?php
-    if(! WC()->cart->is_empty() ){ 
+
+if(! WC()->cart->is_empty() ){ 
 			$wcgb_packages = WC()->session->get('wcgb_packages');
 			$current_package = WC()->session->get('wcgb_current_package');
 			$wcgb_wraps = WC()->session->get('wcgb_wraps');
@@ -361,7 +246,7 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
                                         </h2>
                                     </div>
                                     
-                                    <div class="gf-row-delete">
+                                    <!-- <div class="gf-row-delete">
                                     <?php
                                             echo apply_filters( 'woocommerce_cart_item_remove_link', sprintf(
                                                 '<a href="%s" class="cart-remove %s" aria-label="%s" data-product_id="%s" data-product_sku="%s" data-cikey="%s"><i class="fa fa-trash"></i></a>',
@@ -374,7 +259,7 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
                                             ), $cart_item_key );
                                         ?>
                                     
-                                    </div>
+                                    </div> -->
                                     
                                 </div>
                                 <?php
@@ -382,33 +267,7 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
                             }
                             $current_count = $package_count - $current_package_count;
 
-                            if( !$is_have_product &&  $current_count > 0){?>
-                                <div class="gf-row">
-                                    There is no itme in package!
-                                    <button class="delete-package pd-button" data-package='<?php echo $package; ?>' data-gb-id = '<?php echo $package_product; ?>' data-gb-ckey= '<?php echo $gb_cart_item_key; ?>'  style="margin-left: 2%;margin-top: 0%;" >Delete package</button>
-                                    <button class="delete-package hidden" data-package='<?php echo $package; ?>' data-gb-id = '<?php echo $package_product; ?>' data-gb-ckey= '<?php echo $gb_cart_item_key; ?>'  style="margin-left: 2%;margin-top: 0%;" >Delete package</button>
-                                    
-                                </div>
-                            <?php } 
-                            
-                            if(!$is_have_product && $current_count == 0 ){
-
-                                $url = wc_get_page_permalink( 'shop' );
-                                echo '<div class="gf-row">';
-                                echo "There is no itme in package! please add product in package";
-                                echo '<a href="'.$url.'" class="pd-button" style="margin-left: 2%;margin-top: 0%;">Go to Shop</a>';
-                                echo '</div>';
-                                echo '<button class="delete-package hidden" data-package="'.$package.'" data-gb-id = "'. $package_product.'" data-gb-ckey= "'.$gb_cart_item_key.'"  style="margin-left: 2%;margin-top: 0%;" >Delete package</button>';
-                                
-                            
-                            }
-
-                            
-                        if( $is_have_product && !$has_greeting && get_option( 'wcgb_greeting_id') && ($current_count ) == 0  ){ ?>
-                                <div class="gf-row">
-                                    <a href="<?php echo esc_url( get_permalink( get_option( 'wcgb_greeting_id') ) ); ?>" class="button" > Add Greeting card! </a>
-                                </div>
-                            <?php } ?>
+                             ?>
 
                         
                         Gift Wrap
@@ -574,7 +433,7 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
                             </h2>
                         </div>
                         
-                        <div class="gf-row-delete">
+                        <!-- <div class="gf-row-delete">
                         <?php
                                 echo apply_filters( 'woocommerce_cart_item_remove_link', sprintf(
                                     '<a href="%s" class="cart-remove %s" aria-label="%s" data-product_id="%s" data-product_sku="%s" data-cikey="%s"><i class="fa fa-trash"></i></a>',
@@ -587,7 +446,7 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
                                 ), $cart_item_key );
                             ?>
                         
-                        </div>
+                        </div> -->
                         
                     </div>
                     <?php
@@ -595,68 +454,4 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
                 }
                 echo '</div>';
            }
-        }else{ ?>
-
-            <ul class="cart_list product_list_widget <?php echo esc_attr($args['list_class']); ?>">
-                <li class="empty">
-                    <h4><?php esc_html_e( 'An empty cart', 'g5plus-handmade' ); ?></h4>
-                    <p><?php esc_html_e( 'You have no item in your shopping cart', 'g5plus-handmade' ); ?></p>
-                </li>
-            </ul>
-        
-       <?php }?>
-
-
-	<?php if ( ! WC()->cart->is_empty() ) : ?>
-		<div class="cart-total">
-			<p class="total"><strong><?php esc_html_e( 'Total', 'g5plus-handmade' ); ?>:</strong> <?php echo WC()->cart->get_cart_subtotal(); ?></p>
-
-			<?php do_action( 'woocommerce_widget_shopping_cart_before_buttons' ); ?>
-
-			<p class="buttons">
-				<?php if (isset($opt_header_shopping_cart_button['view-cart']) && ($opt_header_shopping_cart_button['view-cart'] == '1')):?>
-					<?php 
-						$show_popup = WC()->session->get('wcgb_show_popup');
-                        
-						if( empty($greeting_cards) && $show_popup != 'false' ){ ?>
-							<script>
-
-								jQuery(document).ready(function() {
-								
-									jQuery('body').on('click',"#wcgb-checkout-btn", function(e) {
-									    e.preventDefault();
-									    jQuery('#wcgb-checkout-modal').show();
-									});
-
-									jQuery('body').on('click',"#wcgb-checkout-modal .close", function(e) {
-                                        e.preventDefault();
-                                        jQuery('#wcgb-checkout-modal').hide();
-									
-									});
-									
-								});
-							</script>
-
-                    		<button id="wcgb-checkout-btn" class="button wc-forward"><?php esc_html_e( 'View Cart', 'g5plus-handmade' ); ?></button>
-                                
-                    <?php } else{ ?>
-
-                    	<a href="<?php echo esc_url(wc_get_cart_url()); ?>" class="button wc-forward"><?php esc_html_e( 'View Cart', 'g5plus-handmade' ); ?></a> 
-
-					<?php } ?>
-
-				<?php endif; ?>
-				<!-- <?php if (isset($opt_header_shopping_cart_button['checkout']) && ($opt_header_shopping_cart_button['checkout'] == '1') && $showButtons ):?>
-					<a href="<?php echo esc_url(wc_get_checkout_url()); ?>" class="button checkout wc-forward"><?php esc_html_e( 'Checkout', 'g5plus-handmade' ); ?></a>
-				<?php endif; ?> -->
-			</p>
-		</div>
-	<?php endif; ?>
-
-	<?php do_action( 'woocommerce_after_mini_cart' ); ?>
-</div>
-
-            </div>
-        </div>
-    </div>
-</section>
+        }

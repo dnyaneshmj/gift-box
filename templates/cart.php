@@ -34,29 +34,29 @@ do_action( 'woocommerce_before_cart' );
                     old_gb_ckey: old_gb_ckey
                 };
 
-                // jQuery.ajax({
-                //     url: ajaxurl,
-                //     type: 'post',
-                //     data: {
-                //         formData: formData,
-                //         // security: check_ref,
-                //         dataType: "json",
-                //         encode: true,
-                //         action: 'wcgb_change_gb_in_cart'
-                //     },
-                //     error: function(response) {
-                //         console.log(response);
-                //     },
-                //     success: function(response) {
+                jQuery.ajax({
+                    url: ajaxurl,
+                    type: 'post',
+                    data: {
+                        formData: formData,
+                        // security: check_ref,
+                        dataType: "json",
+                        encode: true,
+                        action: 'wcgb_change_gb_in_cart'
+                    },
+                    error: function(response) {
+                        console.log(response);
+                    },
+                    success: function(response) {
                         
-                //         if (response.success) {
-                //             window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+                        if (response.success) {
+                            window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
 
-                //         } else {
+                        } else {
                             
-                //         }
-                //     }
-                // });
+                        }
+                    }
+                });
             }
 
             function changeGiftWrap( package, new_gw_id, old_gw_id,old_gw_ckey ) {
@@ -69,29 +69,29 @@ do_action( 'woocommerce_before_cart' );
                     old_gw_ckey: old_gw_ckey
                 };
 
-                // jQuery.ajax({
-                //     url: ajaxurl,
-                //     type: 'post',
-                //     data: {
-                //         formData: formData,
-                //         // security: check_ref,
-                //         dataType: "json",
-                //         encode: true,
-                //         action: 'wcgb_change_gw_in_cart'
-                //     },
-                //     error: function(response) {
-                //         console.log(response);
-                //     },
-                //     success: function(response) {
+                jQuery.ajax({
+                    url: ajaxurl,
+                    type: 'post',
+                    data: {
+                        formData: formData,
+                        // security: check_ref,
+                        dataType: "json",
+                        encode: true,
+                        action: 'wcgb_change_gw_in_cart'
+                    },
+                    error: function(response) {
+                        console.log(response);
+                    },
+                    success: function(response) {
                         
-                //         if (response.success) {
-                //             window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
+                        if (response.success) {
+                            window.location.href = "<?php echo  wc_get_page_permalink( 'cart' ) ?>";
 
-                //         } else {
+                        } else {
                             
-                //         }
-                //     }
-                // });
+                        }
+                    }
+                });
             }
     </script>
 <!-- </div> -->
@@ -161,7 +161,7 @@ do_action( 'woocommerce_before_cart' );
 
                                     $package_product = $data['product_id'];
 
-                                    $packages_product = $individual_products = [];
+                                    $packages_product = [];
                                     foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
                                         
                                         $product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
@@ -180,9 +180,7 @@ do_action( 'woocommerce_before_cart' );
                                             $packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product,  'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
                                         //$packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product, 'item_package' => $item_package ];
                                         }
-                                        if($is_individual == 'true' ){
-                                            $individual_products[] = [ 'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
-                                        }
+                  
                                     }
                                     $cart_packages = array_merge($cart_packages, $packages_product);
 
@@ -194,7 +192,7 @@ do_action( 'woocommerce_before_cart' );
                                 $giftBoxes = $gift_box_public->wcgb_get_gift_box_options();
                                 $giftWraps = $gift_box_public->wcgb_get_gift_wrap_options();
                                 
-                                echo $package_count = count( $wcgb_packages );
+                                $package_count = count( $wcgb_packages );
                                 $current_package_count = 1;
                                 $showButtons = false;
 
@@ -248,41 +246,36 @@ do_action( 'woocommerce_before_cart' );
                                                 <img src="<?php echo get_the_post_thumbnail_url($package_product); ?>" class="pdthumb">
                                             </div>
 
-                                            <div id="demo-htmlselect" class="dd-container" style="width: 260px;">
-                                                    <select class='giftbox-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gb = '<?php echo $package_product; ?>' data-old-ckey= '<?php echo $gb_cart_item_key; ?>' >
-                                                        <?php 
-                                                            foreach ($giftBoxes as $box ) {
-                                                                $_product = wc_get_product( $box );
-                                                                $price = ( $_product->get_price() != 0)? get_woocommerce_currency_symbol().''.$_product->get_price() : 'Free';
-                                                                echo '<option value="'.$box.'" '.selected( $package_product, $box, false).' data-imagesrc="'.get_the_post_thumbnail_url($box).'" data-description="'.$price.'" > '.get_the_title( $box ).'</option>';
-                                                            }
+                                           
+                                            <select class='giftbox-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gb = '<?php echo $package_product; ?>' data-old-ckey= '<?php echo $gb_cart_item_key; ?>' >
+                                                <?php 
+                                                    foreach ($giftBoxes as $box ) {
+                                                        $_product = wc_get_product( $box );
+                                                        $price = ( $_product->get_price() != 0)? get_woocommerce_currency_symbol().''.$_product->get_price() : 'Free';
+                                                        echo '<option value="'.$box.'" '.selected( $package_product, $box, false).' data-imagesrc="'.get_the_post_thumbnail_url($box).'" data-description="'.$price.'" > '.get_the_title( $box ).'</option>';
+                                                    }
 
-                                                        ?>
-                                                    </select>    
-                                                    <script>
-                                                        jQuery(document).ready(function(e) {
-                                                            jQuery('.giftbox-dropdown-<?php echo $package; ?>').ddslick({
-                                                                    onSelected: function(selectedData){
-                                                                        var package = jQuery( selectedData.original ).data('package');
-                                                                        var old_gb_id = jQuery( selectedData.original ).data('old-gb');
-                                                                        var old_gb_ckey = jQuery( selectedData.original ).data('old-ckey');
+                                                ?>
+                                            </select>    
+                                            <script>
+                                                jQuery(document).ready(function(e) {
+                                                    jQuery('.giftbox-dropdown-<?php echo $package; ?>').ddslick({
+                                                            onSelected: function(selectedData){
+                                                                var package = jQuery( selectedData.original ).data('package');
+                                                                var old_gb_id = jQuery( selectedData.original ).data('old-gb');
+                                                                var old_gb_ckey = jQuery( selectedData.original ).data('old-ckey');
 
-                                                                        var new_gb_id =  selectedData.selectedData.value;
-                                                                        
-                                                                        if(new_gb_id != old_gb_id ){    
-                                                                            changeGiftBox(package, new_gb_id, old_gb_id, old_gb_ckey );
-                                                                        }
-                                                                        
-                                                                    }   
-                                                                });
+                                                                var new_gb_id =  selectedData.selectedData.value;
+                                                                
+                                                                if(new_gb_id != old_gb_id ){    
+                                                                    changeGiftBox(package, new_gb_id, old_gb_id, old_gb_ckey );
+                                                                }
+                                                                
+                                                            }   
                                                         });
-                                                
-                                                    </script>
-
-
-
-
-                                            </div>
+                                                });
+                                        
+                                            </script>
                                                 
                                         <div class="cb-item-price">
                                             <?php 
@@ -406,7 +399,7 @@ do_action( 'woocommerce_before_cart' );
                                                 <?php
 
                                             }
-                                            echo $current_count = $package_count - $current_package_count;
+                                            $current_count = $package_count - $current_package_count;
 
                                             if( !$is_have_product &&  $current_count > 0){?>
                                                 <div class="gf-row">
@@ -444,40 +437,40 @@ do_action( 'woocommerce_before_cart' );
                                             <img src="<?php echo get_the_post_thumbnail_url($gift_wrap); ?>" class="pdthumb">
                                             </div>
                                             
-                                            <div id="demo-giftwrap" class="dd-container" style="width: 260px;">
-                                                <input type="hidden" id="gw-ckey-<?php echo $package; ?>" value= '<?php echo $gw_cart_item_key; ?>'>
-                                                <select class='giftwrap-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gw = '<?php echo $gift_wrap; ?>' data-old-ckey= '<?php echo $gw_cart_item_key; ?>' >  
-                                                    <?php 
-                                                    
-                                                        foreach ($giftWraps as $wrap ) {
-                                                            $_product = wc_get_product( $wrap );
-                                                            $price = ( $_product->get_price() != 0)? get_woocommerce_currency_symbol().''.$_product->get_price() : 'Free';
-                                                            echo '<option value="'.$wrap.'" '.selected( $gift_wrap, $wrap, false).' data-imagesrc="'.get_the_post_thumbnail_url($wrap).'" data-description="'.$price.'" > '.get_the_title( $wrap ).'</option>';
-                                                        }
-
-                                                    ?>
-                                                </select>    
-                                                        <script>
-                                                            jQuery(document).ready(function(e) {
-                                                                jQuery('.giftwrap-dropdown-<?php echo $package; ?>').ddslick({
-                                                                        onSelected: function(selectedData){
-                                                                            var package = jQuery( selectedData.original ).data('package');
-                                                                            var old_gw_id = jQuery( selectedData.original ).data('old-gw');
-                                                                            var old_gw_ckey = jQuery( selectedData.original ).data('old-ckey');
-
-                                                                            var new_gw_id =  selectedData.selectedData.value;
-                                                                            
-                                                                            if(new_gw_id != old_gw_id ){    
-                                                                                changeGiftWrap(package, new_gw_id, old_gw_id, old_gw_ckey );
-                                                                            }
-                                                                            
-                                                                        }   
-                                                                    });
-                                                            });
-                                                    
-                                                        </script>
+                                            
+                                            <input type="hidden" id="gw-ckey-<?php echo $package; ?>" value= '<?php echo $gw_cart_item_key; ?>'>
+                                            <select class='giftwrap-dropdown-<?php echo $package; ?>' data-package='<?php echo $package; ?>' data-old-gw = '<?php echo $gift_wrap; ?>' data-old-ckey= '<?php echo $gw_cart_item_key; ?>' >  
+                                                <?php 
                                                 
-                                            </div>
+                                                    foreach ($giftWraps as $wrap ) {
+                                                        $_product = wc_get_product( $wrap );
+                                                        $price = ( $_product->get_price() != 0)? get_woocommerce_currency_symbol().''.$_product->get_price() : 'Free';
+                                                        echo '<option value="'.$wrap.'" '.selected( $gift_wrap, $wrap, false).' data-imagesrc="'.get_the_post_thumbnail_url($wrap).'" data-description="'.$price.'" > '.get_the_title( $wrap ).'</option>';
+                                                    }
+
+                                                ?>
+                                            </select>    
+                                                <script>
+                                                    jQuery(document).ready(function(e) {
+                                                        jQuery('.giftwrap-dropdown-<?php echo $package; ?>').ddslick({
+                                                                onSelected: function(selectedData){
+                                                                    var package = jQuery( selectedData.original ).data('package');
+                                                                    var old_gw_id = jQuery( selectedData.original ).data('old-gw');
+                                                                    var old_gw_ckey = jQuery( selectedData.original ).data('old-ckey');
+
+                                                                    var new_gw_id =  selectedData.selectedData.value;
+                                                                    
+                                                                    if(new_gw_id != old_gw_id ){    
+                                                                        changeGiftWrap(package, new_gw_id, old_gw_id, old_gw_ckey );
+                                                                    }
+                                                                    
+                                                                }   
+                                                            });
+                                                    });
+                                            
+                                                </script>
+                                                
+                                           
                                             
                                             <div class="cb-item-price">
                                                 <?php 
@@ -502,7 +495,7 @@ do_action( 'woocommerce_before_cart' );
                                                 <!-- <img src="<?php echo get_the_post_thumbnail_url($gift_wrap); ?>" class="pdthumb"> -->
                                                 </div>
                                                 
-                                                <div id="demo-giftwrap" class="dd-container" style="width: 260px;">
+                                                <div style="width: 260px;">
 
                                                 <?php 
                                                         $note = '';
@@ -537,14 +530,22 @@ do_action( 'woocommerce_before_cart' );
                                     $current_package_count++;
 
                                 } 
-                            } ?>
+                            }   
+                        
+                            $individual_products = [];
+                            foreach ( WC()->cart->get_cart() as $cart_item_key => $cart_item ) {
+                                
+                                $product_id = apply_filters( 'woocommerce_cart_item_product_id', $cart_item['product_id'], $cart_item, $cart_item_key );
+                                $is_individual = get_post_meta( $product_id, 'is_individual', true );
+                                if($is_individual == 'true' ){
+                                    $individual_products[] = [ 'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
+                                }
 
-
-                        <?php 
+                            }
                            
                            if(!empty($individual_products)){
                                 echo 'Individual Product
-                                        <div class="package-gb-cont">';
+                                        <div class="package-gb-cont individual">';
                                 foreach ( $individual_products as $product ) {
                                             
 
@@ -558,7 +559,7 @@ do_action( 'woocommerce_before_cart' );
 
                                     ?>
 
-                                    <div class="gf-row">
+                                    <div class="gf-row woocommerce-cart-form__cart-item cart_item">
                                         
                                         <div class="gf-thumb">
                                         <!-- <img src="Bookblock-Florists-pink-spray-large-arrangement-main.jpg" class="pdthumb"> -->
@@ -748,6 +749,10 @@ do_action( 'woocommerce_before_cart' );
                 }
 
             });
+            
+            if(jQuery("textarea.package-note").length == 0 &&  jQuery(".package-gb-cont.individual").length > 0  ){
+                show = true;
+            }
 
             if(show){
                 jQuery('#wcgb-to-checkout').show();
@@ -755,7 +760,7 @@ do_action( 'woocommerce_before_cart' );
                 jQuery('#wcgb-to-checkout').hide();
             }
 
-        }, 4000);
+        }, 2000);
 
         jQuery('.delete-package').on('click', function(e) {
             e.preventDefault();
@@ -862,13 +867,14 @@ do_action( 'woocommerce_before_cart' );
                     },
                     error: function(response) {
                         console.log(response);
+                        
                     },
                     success: function(response) {
                         
                     }
                 });
             });
-    
+            //jQuery(document.body).trigger('wc_fragment_refresh');
             window.location.href = "<?php echo wc_get_checkout_url() ?>";
         
         });
@@ -1129,4 +1135,4 @@ do_action( 'woocommerce_before_cart' );
 	<?php do_action( 'woocommerce_cart_collaterals' ); ?>
 </div>
 
-<?php do_action( 'woocommerce_after_cart' ); ?>
+<?php do_action( 'woocommerce_after_cart' ); 

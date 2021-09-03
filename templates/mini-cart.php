@@ -160,12 +160,16 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
 
 <?php
     if(! WC()->cart->is_empty() ){ 
-			$wcgb_packages = WC()->session->get('wcgb_packages');
+			
+        $wcgb_packages = WC()->session->get('wcgb_packages');
 			$current_package = WC()->session->get('wcgb_current_package');
 			$wcgb_wraps = WC()->session->get('wcgb_wraps');
+            $wcgb_last_package = WC()->session->get('wcgb_last_package' );
+            $has_package = false;
             $showButtons = false;
 
-            $cart_packages = [];
+            $cart_packages = $greeting_cards = [];
+            
             if( !empty($wcgb_packages) ) {
             
                 foreach($wcgb_packages as $package => $data){
@@ -194,7 +198,10 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
                             $packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product,  'cart_item_key' => $cart_item_key, 'cart_item' => $cart_item ];
                         //$packages_product[] = [ 'package'=> $package ,'package_product'=> $package_product, 'item_package' => $item_package ];
                         }
-  
+                        
+                        if(get_post_meta( $product_id, 'is_greeting_card', true ) == 'true')
+                            $greeting_cards[] = $product_id ;
+                            
                     }
                     $cart_packages = array_merge($cart_packages, $packages_product);
 
@@ -215,8 +222,7 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
                         $current_package_count++;
                         continue;
                     }
-                   
-
+                    $has_package = true;
                     $showButtons = true;
                     $package_product = $data['product_id'];
                      $gb_cart_item_key = $data['cart_item_key'];
@@ -382,7 +388,7 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
                             }
                             $current_count = $package_count - $current_package_count;
 
-                            if( !$is_have_product &&  $current_count > 0){?>
+                            if( !$is_have_product &&  $wcgb_last_package != $package){?>
                                 <div class="gf-row">
                                     There is no itme in package!
                                     <button class="delete-package pd-button" data-package='<?php echo $package; ?>' data-gb-id = '<?php echo $package_product; ?>' data-gb-ckey= '<?php echo $gb_cart_item_key; ?>'  style="margin-left: 2%;margin-top: 0%;" >Delete package</button>
@@ -391,7 +397,7 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
                                 </div>
                             <?php } 
                             
-                            if(!$is_have_product && $current_count == 0 ){
+                            if(!$is_have_product && $wcgb_last_package == $package ){
 
                                 $url = wc_get_page_permalink( 'shop' );
                                 echo '<div class="gf-row">';
@@ -404,7 +410,7 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
                             }
 
                             
-                        if( $is_have_product && !$has_greeting && get_option( 'wcgb_greeting_id') && ($current_count ) == 0  ){ ?>
+                        if( $is_have_product && !$has_greeting && get_option( 'wcgb_greeting_id') &&  $wcgb_last_package == $package ){ ?>
                                 <div class="gf-row">
                                     <a href="<?php echo esc_url( get_permalink( get_option( 'wcgb_greeting_id') ) ); ?>" class="button" > Add Greeting card! </a>
                                 </div>
@@ -618,7 +624,7 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
 					<?php 
 						$show_popup = WC()->session->get('wcgb_show_popup');
                         
-						if( empty($greeting_cards) && $show_popup != 'false' ){ ?>
+						if( empty($greeting_cards) && $show_popup != 'false' && $has_package ){ ?>
 							<script>
 
 								jQuery(document).ready(function() {

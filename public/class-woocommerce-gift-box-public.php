@@ -344,6 +344,7 @@ class Woocommerce_Gift_Box_Public {
 				WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' => 'package1'  ) );
 				WC()->session->set('wcgb_packages', [ 'package1' => ['product_id' => $product_id,'cart_item_key' => $cart_item_key ]] );
 				WC()->session->set('wcgb_current_package', 'package1' );
+				WC()->session->set('wcgb_last_package', 'package1' );
 				
 
 			}else{
@@ -356,6 +357,7 @@ class Woocommerce_Gift_Box_Public {
 				
 				WC()->session->set('wcgb_packages', $wcgb_packages );
 				WC()->session->set('wcgb_current_package', $current_package );
+				WC()->session->set('wcgb_last_package', $current_package );
 				
 			}
 
@@ -394,6 +396,7 @@ class Woocommerce_Gift_Box_Public {
 				WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' => 'package1'  ) );
 
 				WC()->session->set('wcgb_current_package', 'package1' );	
+				WC()->session->set('wcgb_last_package', 'package1' );
 
 			}
 			if($wcgb_packages && $current_package != ''){
@@ -418,6 +421,7 @@ class Woocommerce_Gift_Box_Public {
 					WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' => $current_package ) );
 					WC()->cart->remove_cart_item( $cart_item_key );
 					WC()->session->set('wcgb_current_package', $current_package );
+					WC()->session->set('wcgb_last_package', $current_package );
 					WC()->cart->add_to_cart( $product_id ,1,  0,array(), array('item_package' => $current_package  , 'package_product' => $gb_id ) );
 					
 				}
@@ -591,6 +595,17 @@ class Woocommerce_Gift_Box_Public {
 				// end($wcgb_packages);
 				// $key = key($wcgb_packages);
 				// WC()->session->set('wcgb_current_package', $current_package );
+				//WC()->session->set('wcgb_last_package', 'package1' );
+
+				foreach($wcgb_packages as $package => $data){ 
+					
+					if( isset($data['product_id']) && $data['product_id'] != '' ) {
+						
+						WC()->session->set('wcgb_current_package', $package );
+						WC()->session->set('wcgb_last_package', $package );
+
+					}
+				}
 
 				if( isset($wcgb_notes[$package]) ){
 					unset($wcgb_notes[$package]);
@@ -854,6 +869,7 @@ class Woocommerce_Gift_Box_Public {
 			WC()->session->set('wcgb_packages', [ 'package1' => ['product_id' => $gb_id,'cart_item_key' => '' ] ] );
 			WC()->session->set( 'wcgb_wraps', [ 'package1' =>  ['product_id' => $wrap_id, 'cart_item_key' => '' ] ]);
 			WC()->session->set('wcgb_current_package', 'package1' );
+			WC()->session->set('wcgb_last_package', 'package1' );
 
 			WC()->cart->add_to_cart( $gb_id ,1,  0,array(), array('update_package' => true , 'package' => 'package1'  ) );
 			WC()->cart->add_to_cart( $wrap_id ,1,  0,array(), array('update_package' => true , 'package' => 'package1'  ) );
@@ -875,6 +891,7 @@ class Woocommerce_Gift_Box_Public {
 			WC()->session->set('wcgb_packages', $wcgb_packages );
 			WC()->session->set('wcgb_current_package',  $current_package );
 			WC()->session->set( 'wcgb_wraps', $wcgb_wraps );
+			WC()->session->set('wcgb_last_package', $current_package );
 
 			WC()->session->set('wcgb_new_package', 'true' );
 

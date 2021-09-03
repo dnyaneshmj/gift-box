@@ -120,29 +120,9 @@ do_action( 'woocommerce_before_cart' );
                         $wcgb_wraps = WC()->session->get('wcgb_wraps');
                         $wcgb_notes = WC()->session->get('wcgb_notes');
                         $wcgb_address = WC()->session->get('wcgb_address');
-                        // var_dump($wcgb_notes );
-                        // var_dump($wcgb_address );
-                        
+                        $wcgb_last_package = WC()->session->get('wcgb_last_package' );
 
-                            // if( isset($_POST['new_box']) ){
-
-                            //     if(  !$wcgb_packages && !$current_package ){
-	
-                            //         WC()->session->set('wcgb_packages', [ 'package1' => ['product_id' => 'new','cart_item_key' => '' ] ] );
-                            //         WC()->session->set('wcgb_current_package', 'package1' );
                     
-                            //     }else{
-                            //         $currentPackageCount = count($wcgb_packages ) + 1;
-                            //         $current_package = 'package'.$currentPackageCount;
-                            //         $wcgb_packages = array_merge($wcgb_packages, [  $current_package => ['product_id' => 'new','cart_item_key' => '' ] ]);
-    
-                            //         WC()->session->set('wcgb_packages', $wcgb_packages );
-                            //         WC()->session->set('wcgb_current_package',  $current_package );
-                            //         WC()->session->set('wcgb_new_package', 'true' );
-                            //     }
-
-                                
-                            // }
 
                             // var_dump($wcgb_packages); 
                             // var_dump($current_package); 
@@ -401,7 +381,7 @@ do_action( 'woocommerce_before_cart' );
                                             }
                                             $current_count = $package_count - $current_package_count;
 
-                                            if( !$is_have_product &&  $current_count > 0){?>
+                                            if( !$is_have_product &&  $wcgb_last_package != $package ){?>
                                                 <div class="gf-row">
                                                     There is no itme in package!
                                                     <button class="delete-package pd-button" data-package='<?php echo $package; ?>' data-gb-id = '<?php echo $package_product; ?>' data-gb-ckey= '<?php echo $gb_cart_item_key; ?>'  style="margin-left: 2%;margin-top: 0%;" >Delete package</button>
@@ -410,7 +390,7 @@ do_action( 'woocommerce_before_cart' );
                                                 </div>
                                             <?php } 
                                             
-                                            if(!$is_have_product && $current_count == 0 ){
+                                            if(!$is_have_product && $wcgb_last_package == $package ){
 
                                                 $url = wc_get_page_permalink( 'shop' );
                                                 echo '<div class="gf-row">';
@@ -423,7 +403,7 @@ do_action( 'woocommerce_before_cart' );
                                             }
 
                                             
-                                        if( $is_have_product && !$has_greeting && get_option( 'wcgb_greeting_id') && ($current_count ) == 0  ){ ?>
+                                        if( $is_have_product && !$has_greeting && get_option( 'wcgb_greeting_id') && $wcgb_last_package == $package  ){ ?>
                                                 <div class="gf-row">
                                                     <a href="<?php echo esc_url( get_permalink( get_option( 'wcgb_greeting_id') ) ); ?>" class="button" > Add Greeting card! </a>
                                                 </div>
@@ -830,7 +810,7 @@ do_action( 'woocommerce_before_cart' );
         jQuery('#wcgb-to-checkout').on('click', function(event) {
             event.preventDefault();
 
-            //jQuery('.wcgb-loading').show();
+            jQuery('.wcgb-loading').show();
             jQuery(".delete-package.hidden").each(function(index) {
                 
 
@@ -874,8 +854,15 @@ do_action( 'woocommerce_before_cart' );
                     }
                 });
             });
-            //jQuery(document.body).trigger('wc_fragment_refresh');
-            window.location.href = "<?php echo wc_get_checkout_url() ?>";
+
+                            
+            setTimeout(function(){ 
+                jQuery('.wcgb-loading').hide();
+
+                window.location.href = "<?php echo wc_get_checkout_url() ?>";
+
+            }, 2000);
+            
         
         });
 
@@ -928,7 +915,7 @@ do_action( 'woocommerce_before_cart' );
         jQuery('.save-note').on('click', function(event) {
             event.preventDefault();
 
-            //jQuery('.wcgb-loading').show();
+            jQuery('.wcgb-loading').show();
             
             var package = jQuery(this).data('package');
 

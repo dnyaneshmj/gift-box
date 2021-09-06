@@ -220,6 +220,10 @@ class Woocommerce_Gift_Box {
 		$this->loader->add_action( 'woocommerce_checkout_create_order_line_item',  $plugin_public, 'wcgb_store_address_to_item', 10, 4 );
 		
 		$this->loader->add_action( 'woocommerce_new_order',  $plugin_public, 'wcgb_reset_session');
+		$this->loader->add_action( 'woocommerce_cancelled_order',  $plugin_public, 'wcgb_on_cancelled_order_reset_session');
+		
+		
+		$this->loader->add_action( 'template_redirect',  $plugin_public, 'wcgb_prevent_direct_checkout');
 		
 		
 		

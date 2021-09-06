@@ -855,11 +855,15 @@ do_action( 'woocommerce_before_cart' );
                 });
             });
 
-                            
+            <?php 
+                $code = md5(time());
+                $url =  wc_get_checkout_url().'?gbid='.$code;
+                WC()->session->set('wcgb_cart_id', $code);
+            ?>
             setTimeout(function(){ 
                 jQuery('.wcgb-loading').hide();
 
-                window.location.href = "<?php echo wc_get_checkout_url() ?>";
+                window.location.href = "<?php echo $url ?>";
 
             }, 2000);
             

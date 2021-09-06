@@ -855,6 +855,16 @@ class Woocommerce_Gift_Box_Public {
 		
 	}
 
+	public function wcgb_on_cancelled_order_reset_session($order_id){
+		WC()->session->set('wcgb_packages', '' );
+		WC()->session->set('wcgb_current_package',  '' );
+	    WC()->session->set('wcgb_wraps', '');
+		WC()->session->set('wcgb_address', '');
+		WC()->session->set('wcgb_notes', '');
+		WC()->session->set('wcgb_show_popup', 'true' );
+		WC()->cart->empty_cart();
+	}
+
 	public function wcgb_add_new_box(){
 
 		$wcgb_packages = WC()->session->get('wcgb_packages');
@@ -906,5 +916,27 @@ class Woocommerce_Gift_Box_Public {
 
 	}
 
+	public function wcgb_prevent_direct_checkout(){
+		
+		if ( is_checkout() ) {
+
+	
+			if (strpos($_SERVER['REQUEST_URI'], "order-received") !== false && isset( $_GET['key'] )  && $_GET['key'] != '' )
+				return;
+			
+			if(isset( $_GET['gbid'] ) && $_GET['gbid'] != ''){
+				
+				$gbid = $_GET['gbid'];
+				$cid = WC()->session->get('wcgb_cart_id');
+				if($gbid != $cid){
+					wp_redirect(  wc_get_page_permalink( 'cart' ) );
+				}
+
+			}else{
+				wp_redirect(  wc_get_page_permalink( 'cart' ) );
+			}
+				
+		}	
+	}
 
 }

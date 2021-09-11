@@ -289,7 +289,7 @@ class Woocommerce_Gift_Box_Public {
 	public function wcgb_add_item_data($cart_item_data,$product_id, $variation_id){
 
 		$current_package = WC()->session->get('wcgb_current_package');
-		$packages = WC()->session->get('wcgb_packages' );
+		$wcgb_packages = WC()->session->get('wcgb_packages' );
 		
 		
 
@@ -300,10 +300,10 @@ class Woocommerce_Gift_Box_Public {
 		// }
 		$is_package = $wcgb_packages[$current_package];
 
-		if( $current_package != '' && $packages && ! isset($cart_item_data['item_package']) ){
+		if( $current_package != '' && $wcgb_packages && ! isset($cart_item_data['item_package']) ){
 			//var_dump($current_package);die;
 			$cart_item_data['item_package'] = $current_package;
-			$cart_item_data['package_product'] = $packages[$current_package];
+			$cart_item_data['package_product'] = $wcgb_packages[$current_package];
 
 		}
 		

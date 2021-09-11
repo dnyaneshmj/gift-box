@@ -225,6 +225,8 @@ class Woocommerce_Gift_Box {
 		
 		$this->loader->add_action( 'template_redirect',  $plugin_public, 'wcgb_prevent_direct_checkout');
 		
+		$this->loader->add_action( 'woocommerce_persistent_cart_enabled',  $plugin_public, '__return_false');
+		
 		
 		
 	}

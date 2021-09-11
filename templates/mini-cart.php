@@ -161,12 +161,16 @@ $opt_header_shopping_cart_button = g5plus_get_option('header_shopping_cart_butto
 <?php
     if(! WC()->cart->is_empty() ){ 
 			
-        $wcgb_packages = WC()->session->get('wcgb_packages');
+            $wcgb_packages = WC()->session->get('wcgb_packages');
 			$current_package = WC()->session->get('wcgb_current_package');
 			$wcgb_wraps = WC()->session->get('wcgb_wraps');
             $wcgb_last_package = WC()->session->get('wcgb_last_package' );
+        
+
             $has_package = false;
             $showButtons = false;
+
+
 
             $cart_packages = $greeting_cards = [];
             

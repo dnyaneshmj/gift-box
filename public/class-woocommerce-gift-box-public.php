@@ -939,4 +939,9 @@ class Woocommerce_Gift_Box_Public {
 		}	
 	}
 
+	public function wcgb_logout_and_login(){
+		return false;
+	}
+	
+
 }

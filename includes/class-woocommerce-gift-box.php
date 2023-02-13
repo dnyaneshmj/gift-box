@@ -156,6 +156,10 @@ class Woocommerce_Gift_Box {
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
+		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'wcgb_gift_product_metabox' );
+		$this->loader->add_action( 'save_post', $plugin_admin, 'wcgb_gift_product_save_metabox' );
+		$this->loader->add_filter( 'woocommerce_get_settings_products', $plugin_admin, 'wcgb_gift_card_page_option', 10, 2 );
+		$this->loader->add_action( 'woocommerce_after_order_itemmeta', $plugin_admin,  'display_admin_order_item_custom_button', 10, 3 );
 
 	}
 
@@ -172,7 +176,59 @@ class Woocommerce_Gift_Box {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
+		
+		$this->loader->add_action( 'init', $plugin_public, 'wcgb_create_shortcode' );
 
+		$this->loader->add_action('init', $plugin_public, 'wcgb_get_popup_parameter');
+
+		$this->loader->add_action( 'woocommerce_product_query', $plugin_public, 'wcgb_hide_box_and_wrap' );
+		
+		$this->loader->add_action( 'woocommerce_add_to_cart', $plugin_public, 'wcgb_on_product_add', 20, 6);
+		$this->loader->add_filter( 'woocommerce_add_to_cart_redirect',  $plugin_public, 'my_custom_add_to_cart_redirect' );
+		
+		$this->loader->add_filter('woocommerce_add_cart_item_data', $plugin_public, 'wcgb_add_item_data',10,3);
+		$this->loader->add_filter('woocommerce_get_cart_item_from_session', $plugin_public, 'wcgb_add_item_data',10,3);
+		
+		$this->loader->add_filter( 'woocommerce_locate_template', $plugin_public, 'wcgb_locate_template', 10, 3 );
+		
+		$this->loader->add_action( 'wp_ajax_wcgb_change_gb_in_cart',  $plugin_public, 'wcgb_change_gb_value_in_cart' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_change_gb_in_cart',  $plugin_public, 'wcgb_change_gb_value_in_cart' );
+		
+
+		$this->loader->add_action( 'wp_ajax_wcgb_change_gw_in_cart',  $plugin_public, 'wcgb_change_gw_value_in_cart' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_change_gw_in_cart',  $plugin_public, 'wcgb_change_gw_value_in_cart' );
+
+		$this->loader->add_action( 'wp_ajax_wcgb_remove_pkg_from_cart',  $plugin_public, 'wcgb_remove_packages_from_cart' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_remove_pkg_from_cart',  $plugin_public, 'wcgb_remove_packages_from_cart' );
+
+		$this->loader->add_action( 'wp_ajax_wcgb_add_address_to_package',  $plugin_public, 'wcgb_add_package_address' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_add_address_to_package',  $plugin_public, 'wcgb_add_package_address' );
+		
+		$this->loader->add_action( 'wp_ajax_wcgb_get_address_of_package',  $plugin_public, 'wcgb_get_package_address' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_get_address_of_package',  $plugin_public, 'wcgb_get_package_address' );
+		
+		$this->loader->add_action( 'wp_ajax_wcgb_save_note_of_package',  $plugin_public, 'wcgb_save_package_note' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_save_note_of_package',  $plugin_public, 'wcgb_save_package_note' );
+
+		$this->loader->add_action( 'wp_ajax_wcgb_add_new_box',  $plugin_public, 'wcgb_add_new_box' );
+		$this->loader->add_action( 'wp_ajax_nopriv_wcgb_add_new_box',  $plugin_public, 'wcgb_add_new_box' );
+
+		
+
+		$this->loader->add_action( 'wp_footer',  $plugin_public, 'wcgb_greeting_card_option' );
+
+		$this->loader->add_action( 'woocommerce_checkout_create_order_line_item',  $plugin_public, 'wcgb_store_address_to_item', 10, 4 );
+		
+		$this->loader->add_action( 'woocommerce_new_order',  $plugin_public, 'wcgb_reset_session');
+		$this->loader->add_action( 'woocommerce_cancelled_order',  $plugin_public, 'wcgb_on_cancelled_order_reset_session');
+		
+		
+		$this->loader->add_action( 'template_redirect',  $plugin_public, 'wcgb_prevent_direct_checkout');
+		
+		$this->loader->add_action( 'woocommerce_persistent_cart_enabled',  $plugin_public, 'wcgb_logout_and_login');
+		
+		
+		
 	}
 
 	/**
